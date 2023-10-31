@@ -14,7 +14,7 @@ enum PeerTabIndex {
   fav,
   lan,
   ab,
-//  group,
+  group,
 }
 
 class PeerTabModel with ChangeNotifier {
@@ -26,7 +26,7 @@ class PeerTabModel with ChangeNotifier {
     'Favorites',
     'Discovered',
     'Address Book',
-    'Group',
+//  'Group',
   ];
   final List<IconData> icons = [
     Icons.access_time_filled,
