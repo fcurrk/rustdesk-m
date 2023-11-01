@@ -271,7 +271,10 @@ jobs:
           files: |
             ./SignOutput/rustdesk-*.exe
 
-generate-bridge-linux:
+  build-vcpkg-deps-linux:
+    uses: ./.github/workflows/vcpkg-deps-linux.yml
+
+  generate-bridge-linux:
     uses: ./.github/workflows/bridge.yml
 
   build-rustdesk-android:
