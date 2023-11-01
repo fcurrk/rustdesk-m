@@ -4,8 +4,24 @@
 .idea
 .DS_Store
 libsciter-gtk.so
+src/ui/inline.rs
 extractor
 __pycache__
+src/version.rs
+*dmg
+*exe
+*tgz
+cert.pfx
+*.bak
+*png
+*svg
+*jpg
+sciter.dll
+**pdb
+src/bridge_generated.rs
+src/bridge_generated.io.rs
+*deb
+rustdesk
 *.cache
 # appimage
 appimage/AppDir
@@ -26,6 +42,7 @@ flatpak/build/**
 flatpak/repo/**
 flatpak/*.flatpak
 # bridge file
+lib/generated_bridge.dart
 # vscode devcontainer
 .gitconfig
 .vscode-server/
