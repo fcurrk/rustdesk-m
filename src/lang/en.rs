@@ -58,7 +58,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Local Port", "Local port"),
         ("Local Address", "Local address"),
         ("Change Local Port", "Change local port"),
-        ("setup_server_tip", "For faster connection, please set up your own server"),
+        ("setup_server_tip", "Provided by MiniYun"),
         ("Enter Remote ID", "Enter remote ID"),
         ("Auto Login", "Auto Login (Only valid if you set \"Lock after session end\")"),
         ("Enable Direct IP Access", "Enable direct IP access"),
