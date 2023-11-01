@@ -1,78 +1,14 @@
 use hbb_common::regex::Regex;
 use std::ops::Deref;
 
-mod ar;
-mod ca;
 mod cn;
-mod cs;
-mod da;
-mod de;
-mod el;
 mod en;
-mod eo;
-mod es;
-mod fa;
-mod fr;
-mod hu;
-mod id;
-mod it;
-mod ja;
-mod ko;
-mod kz;
-mod lt;
-mod lv;
-mod nl;
-mod pl;
-mod ptbr;
-mod ro;
-mod ru;
-mod sk;
-mod sl;
-mod sq;
-mod sr;
-mod sv;
-mod th;
-mod tr;
 mod tw;
-mod ua;
-mod vn;
 
 pub const LANGS: &[(&str, &str)] = &[
     ("en", "English"),
-    ("it", "Italiano"),
-    ("fr", "Français"),
-    ("de", "Deutsch"),
-    ("nl", "Nederlands"),
     ("zh-cn", "简体中文"),
     ("zh-tw", "繁體中文"),
-    ("pt", "Português"),
-    ("es", "Español"),
-    ("hu", "Magyar"),
-    ("ru", "Русский"),
-    ("sk", "Slovenčina"),
-    ("id", "Indonesia"),
-    ("cs", "Čeština"),
-    ("da", "Dansk"),
-    ("eo", "Esperanto"),
-    ("tr", "Türkçe"),
-    ("vn", "Tiếng Việt"),
-    ("pl", "Polski"),
-    ("ja", "日本語"),
-    ("ko", "한국어"),
-    ("kz", "Қазақ"),
-    ("ua", "Українська"),
-    ("fa", "فارسی"),
-    ("ca", "Català"),
-    ("el", "Ελληνικά"),
-    ("sv", "Svenska"),
-    ("sq", "Shqip"),
-    ("sr", "Srpski"),
-    ("th", "ภาษาไทย"),
-    ("sl", "Slovenščina"),
-    ("ro", "Română"),
-    ("lt", "Lietuvių"),
-    ("lv", "Latviešu"),
-    ("ar", "العربية"),
 ];
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
@@ -104,41 +40,8 @@ pub fn translate_locale(name: String, locale: &str) -> String {
     }
     let lang = lang.to_lowercase();
     let m = match lang.as_str() {
-        "fr" => fr::T.deref(),
         "zh-cn" => cn::T.deref(),
-        "it" => it::T.deref(),
         "zh-tw" => tw::T.deref(),
-        "de" => de::T.deref(),
-        "nl" => nl::T.deref(),
-        "es" => es::T.deref(),
-        "hu" => hu::T.deref(),
-        "ru" => ru::T.deref(),
-        "eo" => eo::T.deref(),
-        "id" => id::T.deref(),
-        "br" => ptbr::T.deref(),
-        "pt" => ptbr::T.deref(),
-        "tr" => tr::T.deref(),
-        "cs" => cs::T.deref(),
-        "da" => da::T.deref(),
-        "sk" => sk::T.deref(),
-        "vn" => vn::T.deref(),
-        "pl" => pl::T.deref(),
-        "ja" => ja::T.deref(),
-        "ko" => ko::T.deref(),
-        "kz" => kz::T.deref(),
-        "ua" => ua::T.deref(),
-        "fa" => fa::T.deref(),
-        "ca" => ca::T.deref(),
-        "el" => el::T.deref(),
-        "sv" => sv::T.deref(),
-        "sq" => sq::T.deref(),
-        "sr" => sr::T.deref(),
-        "th" => th::T.deref(),
-        "sl" => sl::T.deref(),
-        "ro" => ro::T.deref(),
-        "lt" => lt::T.deref(),
-        "lv" => lv::T.deref(),
-        "ar" => ar::T.deref(),
         _ => en::T.deref(),
     };
     let (name, placeholder_value) = extract_placeholder(&name);
