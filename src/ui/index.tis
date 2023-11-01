@@ -46,7 +46,7 @@ class ConnectStatus: Reactor.Component {
             return translate('connecting_status');
         }
         if (!handler.using_public_server()) return translate('Ready');
-        return <span>{translate("Ready")}, <span>Provided by MiniYun</span></span>;
+        return <span>{translate("Ready")}, <span .link #setup-server>Provided by MiniYun</span></span>;
     }
 
     event click $(#start-service) () {
@@ -54,7 +54,7 @@ class ConnectStatus: Reactor.Component {
     }
 
     event click $(#setup-server) () {
-        handler.open_url("https://rustdesk.com/blog/id-relay-set/");
+        handler.open_url("https://www.baidu.com");
     }
 }
 
