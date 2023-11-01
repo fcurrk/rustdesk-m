@@ -45,8 +45,8 @@ class ConnectStatus: Reactor.Component {
         } else if (connect_status == 0) {
             return translate('connecting_status');
         }
-        if (!handler.get_option("custom-rendezvous-server").is_empty()) return translate('Ready'); 
-        return <span>{translate("Ready")} - {translate("setup_server_tip")}</span></span>;
+        if (handler.get_option("custom-rendezvous-server").is_empty()) return <span>{translate("Ready")} - {translate("setup_server_tip")}</span></span>; 
+        return translate('Ready');
     }
 
     event click $(#start-service) () {
