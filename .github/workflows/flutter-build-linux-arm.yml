@@ -286,6 +286,8 @@ jobs:
             
             # build
             pushd /workspace
+            chmod -R 755 ./res/DEBIAN/
+            chmod a+x ./res/inline-sciter.py
             python3 ./res/inline-sciter.py
             export VCPKG_ROOT=/opt/artifacts/vcpkg
             export ARCH=armhf
