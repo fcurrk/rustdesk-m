@@ -439,6 +439,7 @@ jobs:
               ;;
             esac
             export CARGO_INCREMENTAL=0
+            chmod -R 755 ./res/DEBIAN/
             chmod a+x ./build.py
             python3 ./build.py --flutter --hwcodec --skip-cargo
             # rpm package
