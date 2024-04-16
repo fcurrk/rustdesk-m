@@ -299,6 +299,7 @@ jobs:
             mkdir -p ./Release
             mv ./target/release/rustdesk ./Release/rustdesk
             wget -O ./Release/libsciter-gtk.so https://github.com/c-smile/sciter-sdk/raw/master/bin.lnx/arm32/libsciter-gtk.so
+            chmod a+x ./build.py
             ./build.py --package ./Release
 
       - name: Rename rustdesk
@@ -438,6 +439,7 @@ jobs:
               ;;
             esac
             export CARGO_INCREMENTAL=0
+            chmod a+x ./build.py
             python3 ./build.py --flutter --hwcodec --skip-cargo
             # rpm package
             echo -e "start packaging fedora package"
