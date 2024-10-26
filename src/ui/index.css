@@ -1,6 +1,5 @@
 html {
     background-color: transparent;
-    var(gray-bg-osx): rgba(238, 238, 238, 0.75);
 }
 
 body {
@@ -35,7 +34,6 @@ body {
 }
 
 #ab .left-pane {
-    background: white;
     border-radius: 1em;
     padding: 1em;
 }
@@ -185,7 +183,6 @@ div.connect-status {
     left: 240px;
     border-top: color(border) solid 1px;
     width: 100%;
-    background: color(gray-bg);
     padding: 1em;
 }
 
@@ -418,13 +415,8 @@ li:disabled, li:disabled:hover {
     background: color(menu);
 }
 
-.custom-title {
-  font-size: 60px;  
-  font-weight: bold;  
-  text-align: center;
-  margin-top: 180px;
-  line-height: 1.5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+@media platform == "OSX" {
+    div.eye-area > input {
+        font-size: 1em;
+    }
 }

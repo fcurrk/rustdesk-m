@@ -31,20 +31,6 @@ RustDesk mengajak semua orang untuk ikut berkontribusi. Lihat [`docs/CONTRIBUTIN
     alt="Get it on F-Droid"
     height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
 
-## Server Publik Gratis
-
-Di bawah ini merupakan server gratis yang bisa kamu gunakan, seiring dengan waktu mungkin akan terjadi perubahan spesifikasi pada setiap server yang ada. Jika lokasi kamu berada jauh dengan salah satu server yang tersedia, kemungkinan koneksi akan terasa lambat ketika melakukan proses remote.
-| Lokasi | Penyedia | Spesifikasi |
-| --------- | ------------- | ------------------ |
-| Jerman | [Hetzner](https://www.hetzner.com) | 2 vCPU / 4GB RAM |
-| Ukraina (Kyiv) | [dc.volia](https://dc.volia.com) | 2 vCPU / 4GB RAM |
-
-## Dev Container
-
-[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Container&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/rustdesk/rustdesk)
-
-Apabila PC kamu sudah terinstal VS Code dan Docker, kamu bisa mengklik badge yang ada diatas untuk memulainya. Dengan mengklik badge tersebut secara otomatis akan menginstal ekstensi pada VS Code, lakukan kloning (clone) source code kedalam container volume, dan aktifkan dev container untuk menggunakannya.
-
 ## Dependensi
 
 Pada versi desktop, antarmuka pengguna (GUI) menggunakan [Sciter](https://sciter.com/) atau flutter
@@ -126,37 +112,6 @@ mkdir -p target/debug
 wget https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.lnx/x64/libsciter-gtk.so
 mv libsciter-gtk.so target/debug
 VCPKG_ROOT=$HOME/vcpkg cargo run
-```
-
-### Mengubah Wayland ke X11 (Xorg)
-
-RustDesk tidak mendukung Wayland. Cek [ini](https://docs.fedoraproject.org/en-US/quick-docs/configuring-xorg-as-default-gnome-session/) untuk mengonfigurasi Xorg sebagai sesi standar di GNOME.
-
-## Kompatibilitas dengan Wayland
-
-Sepertinya Wayland tidak memiliki API untuk mengirimkan ketukan tombol ke jendela lain. Maka dari itu, RustDesk menggunakan API dari level yang lebih rendah, lebih tepatnya perangkat `/dev/uinput` (linux kernel level)
-
-Saat Wayland menjadi sisi yang dikendalikan atau sisi yang sedang diremote, kamu harus memulai dengan cara ini
-
-```bash
-# Start uinput service
-$ sudo rustdesk --service
-$ rustdesk
-```
-
-**Harap Diperhatikan**: Saat Perekaman layar menggunakan Wayland antarmuka (UI) yang ditampilkan akan berbeda. Untuk saat ini RustDesk hanya mendukung org.freedesktop.portal.ScreenCast.
-
-```bash
-$ dbus-send --session --print-reply       \
-  --dest=org.freedesktop.portal.Desktop \
-  /org/freedesktop/portal/desktop       \
-  org.freedesktop.DBus.Properties.Get   \
-  string:org.freedesktop.portal.ScreenCast string:version
-# Not support
-Error org.freedesktop.DBus.Error.InvalidArgs: No such interface “org.freedesktop.portal.ScreenCast”
-# Support
-method return time=1662544486.931020 sender=:1.54 -> destination=:1.139 serial=257 reply_serial=2
-   variant       uint32 4
 ```
 
 ## Cara Build dengan Docker
