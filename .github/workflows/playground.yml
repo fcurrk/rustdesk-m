@@ -1,7 +1,6 @@
 name: playground
 
-on:
-  workflow_call:
+on: workflow_dispatch
 
 env:
   RUST_VERSION: "1.75" # https://github.com/rustdesk/rustdesk/discussions/7503

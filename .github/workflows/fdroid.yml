@@ -1,7 +1,6 @@
 name: Fdroid version file generation
 
-on:
-  workflow_call:
+on: workflow_dispatch
 
 jobs:
   # https://gitlab.com/fdroid/fdroiddata/-/blob/master/metadata/com.carriez.flutter_hbb.yml
