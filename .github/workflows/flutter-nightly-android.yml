@@ -1,4 +1,4 @@
-name: Flutter Nightly Build Android
+name: Android Build
 
 on: workflow_dispatch
 

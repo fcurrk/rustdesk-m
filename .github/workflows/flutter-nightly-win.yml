@@ -1,4 +1,4 @@
-name: Flutter Nightly Build Win
+name: Windows Build
 
 on: workflow_dispatch
 

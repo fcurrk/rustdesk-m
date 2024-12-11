@@ -1,4 +1,4 @@
-name: Flutter Nightly Build Linux arm
+name: Linux arm Build
 
 on: workflow_dispatch
 
