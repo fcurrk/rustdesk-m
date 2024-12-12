@@ -443,13 +443,13 @@ class _GeneralState extends State<_General> {
                   await bind.mainSetLocalOption(key: k, value: v ? 'Y' : 'N'),
             ),
           ),
-        if (!isWeb && !bind.isCustomClient())
-          _OptionCheckBox(
-            context,
-            'Check for software update on startup',
-            kOptionEnableCheckUpdate,
-            isServer: false,
-          ),
+//        if (!isWeb && !bind.isCustomClient())
+//          _OptionCheckBox(
+//            context,
+//            'Check for software update on startup',
+//            kOptionEnableCheckUpdate,
+//            isServer: false,
+//          ),
         if (isWindows && !bind.isOutgoingOnly())
           _OptionCheckBox(
             context,
@@ -1864,22 +1864,22 @@ class _AboutState extends State<_About> {
                 SelectionArea(
                     child: Text('${translate('Fingerprint')}: $fingerprint')
                         .marginSymmetric(vertical: 4.0)),
-              InkWell(
-                  onTap: () {
-                    launchUrlString('https://rustdesk.com/privacy.html');
-                  },
-                  child: Text(
-                    translate('Privacy Statement'),
-                    style: linkStyle,
-                  ).marginSymmetric(vertical: 4.0)),
-              InkWell(
-                  onTap: () {
-                    launchUrlString('https://rustdesk.com');
-                  },
-                  child: Text(
-                    translate('Website'),
-                    style: linkStyle,
-                  ).marginSymmetric(vertical: 4.0)),
+//              InkWell(
+//                  onTap: () {
+//                    launchUrlString('https://rustdesk.com/privacy.html');
+//                  },
+//                  child: Text(
+//                    translate('Privacy Statement'),
+//                    style: linkStyle,
+//                  ).marginSymmetric(vertical: 4.0)),
+//              InkWell(
+//                  onTap: () {
+//                    launchUrlString('https://rustdesk.com');
+//                  },
+//                  child: Text(
+//                    translate('Website'),
+//                    style: linkStyle,
+//                  ).marginSymmetric(vertical: 4.0)),
               Container(
                 decoration: const BoxDecoration(color: Color(0xFF2c8cff)),
                 padding:
@@ -1896,7 +1896,7 @@ class _AboutState extends State<_About> {
                             style: const TextStyle(color: Colors.white),
                           ),
                           Text(
-                            translate('Slogan_tip'),
+                            'Minijer Special Edition',
                             style: TextStyle(
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white),

@@ -87,7 +87,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
                 Text(', ', style: TextStyle(fontSize: em)),
                 Flexible(
                   child: InkWell(
-                    onTap: onUsePublicServerGuide,
+//                    onTap: onUsePublicServerGuide,
                     child: Row(
                       children: [
                         Flexible(

@@ -420,3 +420,14 @@ li:disabled, li:disabled:hover {
         font-size: 1em;
     }
 }
+
+.custom-title {
+  font-size: 60px;  
+  font-weight: bold;  
+  text-align: center;
+  margin-top: 180px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

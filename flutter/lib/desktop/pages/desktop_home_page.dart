@@ -417,18 +417,18 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   }
 
   Widget buildHelpCards(String updateUrl) {
-    if (!bind.isCustomClient() &&
-        updateUrl.isNotEmpty &&
-        !isCardClosed &&
-        bind.mainUriPrefixSync().contains('rustdesk')) {
-      return buildInstallCard(
-          "Status",
-          "There is a newer version of ${bind.mainGetAppNameSync()} ${bind.mainGetNewVersion()} available.",
-          "Click to download", () async {
-        final Uri url = Uri.parse('https://rustdesk.com/download');
-        await launchUrl(url);
-      }, closeButton: true);
-    }
+//    if (!bind.isCustomClient() &&
+//        updateUrl.isNotEmpty &&
+//        !isCardClosed &&
+//        bind.mainUriPrefixSync().contains('rustdesk')) {
+//      return buildInstallCard(
+//          "Status",
+//          "There is a newer version of ${bind.mainGetAppNameSync()} ${bind.mainGetNewVersion()} available.",
+//          "Click to download", () async {
+//        final Uri url = Uri.parse('https://rustdesk.com/download');
+//        await launchUrl(url);
+//      }, closeButton: true);
+//    }
     if (systemError.isNotEmpty) {
       return buildInstallCard("", systemError, "", () {});
     }
@@ -441,13 +441,13 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           await rustDeskWinManager.closeAllSubWindows();
           bind.mainGotoInstall();
         });
-      } else if (bind.mainIsInstalledLowerVersion()) {
-        return buildInstallCard(
-            "Status", "Your installation is lower version.", "Click to upgrade",
-            () async {
-          await rustDeskWinManager.closeAllSubWindows();
-          bind.mainUpdateMe();
-        });
+//      } else if (bind.mainIsInstalledLowerVersion()) {
+//        return buildInstallCard(
+//            "Status", "Your installation is lower version.", "Click to upgrade",
+//            () async {
+//          await rustDeskWinManager.closeAllSubWindows();
+//          bind.mainUpdateMe();
+//        });
       }
     } else if (isMacOS) {
       final isOutgoingOnly = bind.isOutgoingOnly();
@@ -858,7 +858,7 @@ void setPasswordDialog({VoidCallback? notEmptyCallback}) async {
   final RxString rxPass = pw.trim().obs;
   final rules = [
     DigitValidationRule(),
-    UppercaseValidationRule(),
+    //UppercaseValidationRule(),
     LowercaseValidationRule(),
     // SpecialCharacterValidationRule(),
     MinCharactersValidationRule(8),
