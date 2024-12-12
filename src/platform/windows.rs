@@ -1584,7 +1584,6 @@ Set objFSO = CreateObject(\"Scripting.FileSystemObject\")
 sLinkFile = objFSO.BuildPath(strDesktop, \"{id}.lnk\")
 Set oLink = oWS.CreateShortcut(sLinkFile)
     oLink.TargetPath = \"{exe}\"
-    oLink.WorkingDirectory = \"{path}\"
     oLink.Arguments = \"--connect {id}\"
 oLink.Save
         "
@@ -2228,7 +2227,6 @@ sLinkFile = \"{tmp_path}\\{app_name} Tray.lnk\"
 
 Set oLink = oWS.CreateShortcut(sLinkFile)
     oLink.TargetPath = \"{exe}\"
-    oLink.WorkingDirectory = \"{path}\"
     oLink.Arguments = \"--tray\"
 oLink.Save
         ",
