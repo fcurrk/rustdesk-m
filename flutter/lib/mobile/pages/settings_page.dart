@@ -159,7 +159,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
       var checkUpdateOnStartup =
           mainGetLocalBoolOptionSync(kOptionEnableCheckUpdate);
       if (checkUpdateOnStartup != _checkUpdateOnStartup) {
-        update = true;
+        update = false;
         _checkUpdateOnStartup = checkUpdateOnStartup;
       }
 
@@ -561,21 +561,21 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
           gFFI.invokeMethod(AndroidChannel.kSetStartOnBootOpt, toValue);
         }));
 
-    if (!bind.isCustomClient()) {
-      enhancementsTiles.add(
-        SettingsTile.switchTile(
-          initialValue: _checkUpdateOnStartup,
-          title:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(translate('Check for software update on startup')),
-          ]),
-          onToggle: (bool toValue) async {
-            await mainSetLocalBoolOption(kOptionEnableCheckUpdate, toValue);
-            setState(() => _checkUpdateOnStartup = toValue);
-          },
-        ),
-      );
-    }
+//    if (!bind.isCustomClient()) {
+//      enhancementsTiles.add(
+//        SettingsTile.switchTile(
+//          initialValue: _checkUpdateOnStartup,
+//          title:
+//              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+//            Text(translate('Check for software update on startup')),
+//          ]),
+//          onToggle: (bool toValue) async {
+//            await mainSetLocalBoolOption(kOptionEnableCheckUpdate, toValue);
+//            setState(() => _checkUpdateOnStartup = toValue);
+//          },
+//        ),
+//      );
+//    }
 
     onFloatingWindowChanged(bool toValue) async {
       if (toValue) {
@@ -923,12 +923,12 @@ void showAbout(OverlayDialogManager dialogManager) {
       content: Wrap(direction: Axis.vertical, spacing: 12, children: [
         Text('Version: $version'),
         InkWell(
-            onTap: () async {
-              const url = 'https://rustdesk.com/';
-              if (await canLaunchUrl(Uri.parse(url))) {
-                await launchUrl(Uri.parse(url));
-              }
-            },
+//            onTap: () async {
+//              const url = 'https://rustdesk.com/';
+//              if (await canLaunchUrl(Uri.parse(url))) {
+//                await launchUrl(Uri.parse(url));
+//              }
+//            },
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Text('rustdesk.com',
