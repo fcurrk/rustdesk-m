@@ -1250,24 +1250,24 @@ oLink.Save
     let mut reg_value_desktop_shortcuts = "0".to_owned();
     let mut reg_value_start_menu_shortcuts = "0".to_owned();
     let mut shortcuts = Default::default();
-//    if options.contains("desktopicon") {
-//        shortcuts = format!(
-//            "copy /Y \"{}\\{}.lnk\" \"%PUBLIC%\\Desktop\\\"",
-//            tmp_path,
-//            crate::get_app_name()
-//        );
-//        reg_value_desktop_shortcuts = "1".to_owned();
-//    }
-//    if options.contains("startmenu") {
-//        shortcuts = format!(
-//            "{shortcuts}
-//md \"{start_menu}\"
-//copy /Y \"{tmp_path}\\{app_name}.lnk\" \"{start_menu}\\\"
-//copy /Y \"{tmp_path}\\Uninstall {app_name}.lnk\" \"{start_menu}\\\"
-//     "
-//        );
-//        reg_value_start_menu_shortcuts = "1".to_owned();
-//    }
+    if options.contains("desktopicon") {
+        shortcuts = format!(
+            "copy /Y \"{}\\{}.lnk\" \"%PUBLIC%\\Desktop\\\"",
+            tmp_path,
+            crate::get_app_name()
+        );
+        reg_value_desktop_shortcuts = "1".to_owned();
+    }
+    if options.contains("startmenu") {
+        shortcuts = format!(
+            "{shortcuts}
+md \"{start_menu}\"
+copy /Y \"{tmp_path}\\{app_name}.lnk\" \"{start_menu}\\\"
+copy /Y \"{tmp_path}\\Uninstall {app_name}.lnk\" \"{start_menu}\\\"
+     "
+        );
+        reg_value_start_menu_shortcuts = "1".to_owned();
+    }
 
     let meta = std::fs::symlink_metadata(std::env::current_exe()?)?;
     let size = meta.len() / 1024;
@@ -1294,14 +1294,14 @@ if exist \"{tmp_path}\\{app_name} Tray.lnk\" del /f /q \"{tmp_path}\\{app_name} 
         Config::set_option("api-server".into(), lic.api);
     }
 
-//    let tray_shortcuts = if config::is_outgoing_only() {
-//        "".to_owned()
-//    } else {
-//        format!("
-//cscript \"{tray_shortcut}\"
-//copy /Y \"{tmp_path}\\{app_name} Tray.lnk\" \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\"
-//")
-//    };
+    let tray_shortcuts = if config::is_outgoing_only() {
+        "".to_owned()
+    } else {
+        format!("
+cscript \"{tray_shortcut}\"
+copy /Y \"{tmp_path}\\{app_name} Tray.lnk\" \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\"
+")
+    };
 
     let cmds = format!(
         "
@@ -1325,8 +1325,7 @@ md \"{path}\"
 //reg add {subkey} /f /v WindowsInstaller /t REG_DWORD /d 0
 //cscript \"{mk_shortcut}\"
 //cscript \"{uninstall_shortcut}\"
-//{tray_shortcuts}
-//{shortcuts}
+
 //copy /Y \"{tmp_path}\\Uninstall {app_name}.lnk\" \"{path}\\\"
 {dels}
 {import_config}
