@@ -1019,7 +1019,7 @@ impl AudioHandler {
 
         self.simple = Some(Simple::new(
             None,                   // Use the default server
-            &crate::get_app_name(), // Our application’s name
+            &crate::get_app_name(), // Our applicationâ€™s name
             Direction::Playback,    // We want a playback stream
             None,                   // Use the default device
             "playback",             // Description of our stream
