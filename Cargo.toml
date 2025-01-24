@@ -1,6 +1,6 @@
 [package]
 name = "rustdesk"
-version = "1.9.96"
+version = "1.9.97"
 authors = ["rustdesk <info@rustdesk.com>"]
 edition = "2021"
 build= "build.rs"
@@ -15,6 +15,10 @@ crate-type = ["cdylib", "staticlib", "rlib"]
 [[bin]]
 name = "naming"
 path = "src/naming.rs"
+
+[[bin]]
+name = "service"
+path = "src/service.rs"
 
 [features]
 inline = []
