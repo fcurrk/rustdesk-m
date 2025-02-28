@@ -53,12 +53,10 @@ lazy_static::lazy_static! {
     static ref CONFIG: RwLock<Config> = RwLock::new(Config::load());
     static ref CONFIG2: RwLock<Config2> = RwLock::new(Config2::load());
     static ref LOCAL_CONFIG: RwLock<LocalConfig> = RwLock::new(LocalConfig::load());
+    static ref STATUS: RwLock<Status> = RwLock::new(Status::load());
     static ref TRUSTED_DEVICES: RwLock<(Vec<TrustedDevice>, bool)> = Default::default();
     static ref ONLINE: Mutex<HashMap<String, i64>> = Default::default();
-    pub static ref PROD_RENDEZVOUS_SERVER: RwLock<String> = RwLock::new(match option_env!("RENDEZVOUS_SERVER") {
-        Some(key) if !key.is_empty() => key,
-        _ => "",
-    }.to_owned());
+    pub static ref PROD_RENDEZVOUS_SERVER: RwLock<String> = RwLock::new("".to_owned());
     pub static ref EXE_RENDEZVOUS_SERVER: RwLock<String> = Default::default();
     pub static ref APP_NAME: RwLock<String> = RwLock::new("RustDesk".to_owned());
     static ref KEY_PAIR: Mutex<Option<KeyPair>> = Default::default();
@@ -101,12 +99,7 @@ const CHARS: &[char] = &[
 ];
 
 pub const RENDEZVOUS_SERVERS: &[&str] = &["rs-ny.rustdesk.com"];
-pub const PUBLIC_RS_PUB_KEY: &str = "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=";
-
-pub const RS_PUB_KEY: &str = match option_env!("RS_PUB_KEY") {
-    Some(key) if !key.is_empty() => key,
-    _ => PUBLIC_RS_PUB_KEY,
-};
+pub const RS_PUB_KEY: &str = "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=";
 
 pub const RENDEZVOUS_PORT: i32 = 21116;
 pub const RELAY_PORT: i32 = 21117;
@@ -1221,7 +1214,7 @@ impl PeerConfig {
                     }
                 }
                 if store {
-                    config.store(id);
+                    config.store_(id);
                 }
                 config
             }
@@ -1239,6 +1232,10 @@ impl PeerConfig {
 
     pub fn store(&self, id: &str) {
         let _lock = CONFIG.read().unwrap();
+        self.store_(id);
+    }
+
+    fn store_(&self, id: &str) {
         let mut config = self.clone();
         config.password =
             encrypt_vec_or_original(&config.password, PASSWORD_ENC_VERSION, ENCRYPT_MAX_LEN);
@@ -1276,55 +1273,151 @@ impl PeerConfig {
         Config::with_extension(Config::path(path))
     }
 
-    pub fn peers(id_filters: Option<Vec<String>>) -> Vec<(String, SystemTime, PeerConfig)> {
-        if let Ok(peers) = Config::path(PEERS).read_dir() {
-            if let Ok(peers) = peers
-                .map(|res| res.map(|e| e.path()))
-                .collect::<Result<Vec<_>, _>>()
-            {
-                let mut peers: Vec<_> = peers
-                    .iter()
-                    .filter(|p| {
-                        p.is_file()
-                            && p.extension().map(|p| p.to_str().unwrap_or("")) == Some("toml")
-                    })
-                    .map(|p| {
-                        let id = p
-                            .file_stem()
-                            .map(|p| p.to_str().unwrap_or(""))
-                            .unwrap_or("")
-                            .to_owned();
+    // The number of peers to load in the first round when showing the peers card list in the main window.
+    // When there're too many peers, loading all of them at once will take a long time.
+    // We can load them in two rouds, the first round loads the first 100 peers, and the second round loads the rest.
+    // Then the UI will show the first 100 peers first, and the rest will be loaded and shown later.
+    pub const BATCH_LOADING_COUNT: usize = 100;
 
-                        let id_decoded_string = if id.starts_with("base64_") && id.len() != 7 {
-                            let id_decoded = base64::decode(&id[7..], base64::Variant::Original)
-                                .unwrap_or_default();
-                            String::from_utf8_lossy(&id_decoded).as_ref().to_owned()
+    pub fn get_vec_id_modified_time_path(
+        id_filters: &Option<Vec<String>>,
+    ) -> Vec<(String, SystemTime, PathBuf)> {
+        if let Ok(peers) = Config::path(PEERS).read_dir() {
+            let mut vec_id_modified_time_path = peers
+                .into_iter()
+                .filter_map(|res| match res {
+                    Ok(res) => {
+                        let p = res.path();
+                        if p.is_file()
+                            && p.extension().map(|p| p.to_str().unwrap_or("")) == Some("toml")
+                        {
+                            Some(p)
                         } else {
-                            id
-                        };
-                        (id_decoded_string, p)
-                    })
-                    .filter(|(id, _)| {
-                        let Some(filters) = &id_filters else {
-                            return true;
-                        };
-                        filters.contains(id)
-                    })
-                    .map(|(id, p)| {
-                        let t = crate::get_modified_time(p);
-                        let c = PeerConfig::load(&id);
-                        if c.info.platform.is_empty() {
-                            fs::remove_file(p).ok();
+                            None
                         }
-                        (id, t, c)
-                    })
-                    .filter(|p| !p.2.info.platform.is_empty())
-                    .collect();
-                peers.sort_unstable_by(|a, b| b.1.cmp(&a.1));
-                return peers;
+                    }
+                    _ => None,
+                })
+                .map(|p| {
+                    let id = p
+                        .file_stem()
+                        .map(|p| p.to_str().unwrap_or(""))
+                        .unwrap_or("")
+                        .to_owned();
+
+                    let id_decoded_string = if id.starts_with("base64_") && id.len() != 7 {
+                        let id_decoded =
+                            base64::decode(&id[7..], base64::Variant::Original).unwrap_or_default();
+                        String::from_utf8_lossy(&id_decoded).as_ref().to_owned()
+                    } else {
+                        id
+                    };
+                    (id_decoded_string, p)
+                })
+                .filter(|(id, _)| {
+                    let Some(filters) = id_filters else {
+                        return true;
+                    };
+                    filters.contains(id)
+                })
+                .map(|(id, p)| {
+                    let t = crate::get_modified_time(&p);
+                    (id, t, p)
+                })
+                .collect::<Vec<_>>();
+            vec_id_modified_time_path.sort_unstable_by(|a, b| b.1.cmp(&a.1));
+            vec_id_modified_time_path
+        } else {
+            vec![]
+        }
+    }
+
+    #[inline]
+    async fn preload_file_async(path: PathBuf) {
+        let _ = tokio::fs::File::open(path).await;
+    }
+
+    #[tokio::main(flavor = "current_thread")]
+    async fn preload_peers_async() {
+        let now = std::time::Instant::now();
+        let vec_id_modified_time_path = Self::get_vec_id_modified_time_path(&None);
+        let total_count = vec_id_modified_time_path.len();
+        let mut futs = vec![];
+        for (_, _, path) in vec_id_modified_time_path.into_iter() {
+            futs.push(Self::preload_file_async(path));
+            if futs.len() >= Self::BATCH_LOADING_COUNT {
+                let first_load_start = std::time::Instant::now();
+                futures::future::join_all(futs).await;
+                if first_load_start.elapsed().as_millis() < 10 {
+                    // No need to preload the rest if the first load is fast.
+                    return;
+                }
+                futs = vec![];
             }
         }
-        Default::default()
+        if !futs.is_empty() {
+            futures::future::join_all(futs).await;
+        }
+        log::info!(
+            "Preload peers done in {:?}, batch_count: {}, total: {}",
+            now.elapsed(),
+            Self::BATCH_LOADING_COUNT,
+            total_count
+        );
+    }
+
+    // We have to preload all peers in a background thread.
+    // Because we find that opening files the first time after the system (Windows) booting will be very slow, up to 200~400ms.
+    // The reason is that the Windows has "Microsoft Defender Antivirus Service" running in the background, which will scan the file when it's opened the first time.
+    // So we have to preload all peers in a background thread to avoid the delay when opening the file the first time.
+    // We can temporarily stop "Microsoft Defender Antivirus Service" or add the fold to the white list, to verify this. But don't do this in the release version.
+    pub fn preload_peers() {
+        std::thread::spawn(|| {
+            Self::preload_peers_async();
+        });
+    }
+
+    pub fn peers(id_filters: Option<Vec<String>>) -> Vec<(String, SystemTime, PeerConfig)> {
+        let vec_id_modified_time_path = Self::get_vec_id_modified_time_path(&id_filters);
+        Self::batch_peers(
+            &vec_id_modified_time_path,
+            0,
+            Some(vec_id_modified_time_path.len()),
+        )
+        .0
+    }
+
+    pub fn batch_peers(
+        all: &Vec<(String, SystemTime, PathBuf)>,
+        from: usize,
+        to: Option<usize>,
+    ) -> (Vec<(String, SystemTime, PeerConfig)>, usize) {
+        if from >= all.len() {
+            return (vec![], 0);
+        }
+
+        let to = match to {
+            Some(to) => to.min(all.len()),
+            None => (from + Self::BATCH_LOADING_COUNT).min(all.len()),
+        };
+
+        // to <= from is unexpected, but we can just return an empty vec in this case.
+        if to <= from {
+            return (vec![], from);
+        }
+
+        let peers: Vec<_> = all[from..to]
+            .iter()
+            .map(|(id, t, p)| {
+                let c = PeerConfig::load(&id);
+                if c.info.platform.is_empty() {
+                    fs::remove_file(p).ok();
+                }
+                (id.clone(), t.clone(), c)
+            })
+            .filter(|p| !p.2.info.platform.is_empty())
+            .collect();
+        (peers, to)
     }
 
     pub fn exists(id: &str) -> bool {
@@ -1974,6 +2067,16 @@ pub struct GroupUser {
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
+pub struct DeviceGroup {
+    #[serde(
+        default,
+        deserialize_with = "deserialize_string",
+        skip_serializing_if = "String::is_empty"
+    )]
+    pub name: String,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct Group {
     #[serde(
         default,
@@ -1985,6 +2088,8 @@ pub struct Group {
     pub users: Vec<GroupUser>,
     #[serde(default, deserialize_with = "deserialize_vec_grouppeer")]
     pub peers: Vec<GroupPeer>,
+    #[serde(default, deserialize_with = "deserialize_vec_devicegroup")]
+    pub device_groups: Vec<DeviceGroup>,
 }
 
 impl Group {
@@ -2056,6 +2161,7 @@ deserialize_default!(deserialize_vec_abpeer, Vec<AbPeer>);
 deserialize_default!(deserialize_vec_abentry, Vec<AbEntry>);
 deserialize_default!(deserialize_vec_groupuser, Vec<GroupUser>);
 deserialize_default!(deserialize_vec_grouppeer, Vec<GroupPeer>);
+deserialize_default!(deserialize_vec_devicegroup, Vec<DeviceGroup>);
 deserialize_default!(deserialize_keypair, KeyPair);
 deserialize_default!(deserialize_size, Size);
 deserialize_default!(deserialize_hashmap_string_string, HashMap<String, String>);
@@ -2206,6 +2312,7 @@ pub mod keys {
     pub const OPTION_ENABLE_KEYBOARD: &str = "enable-keyboard";
     pub const OPTION_ENABLE_CLIPBOARD: &str = "enable-clipboard";
     pub const OPTION_ENABLE_FILE_TRANSFER: &str = "enable-file-transfer";
+    pub const OPTION_ENABLE_CAMERA: &str = "enable-camera";
     pub const OPTION_ENABLE_AUDIO: &str = "enable-audio";
     pub const OPTION_ENABLE_TUNNEL: &str = "enable-tunnel";
     pub const OPTION_ENABLE_REMOTE_RESTART: &str = "enable-remote-restart";
@@ -2243,6 +2350,7 @@ pub mod keys {
     // buildin options
     pub const OPTION_DISPLAY_NAME: &str = "display-name";
     pub const OPTION_DISABLE_UDP: &str = "disable-udp";
+    pub const OPTION_PRESET_DEVICE_GROUP_NAME: &str = "preset-device-group-name";
     pub const OPTION_PRESET_USERNAME: &str = "preset-user-name";
     pub const OPTION_PRESET_STRATEGY_NAME: &str = "preset-strategy-name";
     pub const OPTION_REMOVE_PRESET_PASSWORD_WARNING: &str = "remove-preset-password-warning";
@@ -2355,6 +2463,7 @@ pub mod keys {
         OPTION_ENABLE_KEYBOARD,
         OPTION_ENABLE_CLIPBOARD,
         OPTION_ENABLE_FILE_TRANSFER,
+        OPTION_ENABLE_CAMERA,
         OPTION_ENABLE_AUDIO,
         OPTION_ENABLE_TUNNEL,
         OPTION_ENABLE_REMOTE_RESTART,
@@ -2393,6 +2502,7 @@ pub mod keys {
     pub const KEYS_BUILDIN_SETTINGS: &[&str] = &[
         OPTION_DISPLAY_NAME,
         OPTION_DISABLE_UDP,
+        OPTION_PRESET_DEVICE_GROUP_NAME,
         OPTION_PRESET_USERNAME,
         OPTION_PRESET_STRATEGY_NAME,
         OPTION_REMOVE_PRESET_PASSWORD_WARNING,
@@ -2420,6 +2530,42 @@ pub fn common_load<
 
 pub fn common_store<T: serde::Serialize>(config: &T, suffix: &str) {
     Config::store_(config, suffix);
+}
+
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+pub struct Status {
+    #[serde(default, deserialize_with = "deserialize_hashmap_string_string")]
+    values: HashMap<String, String>,
+}
+
+impl Status {
+    fn load() -> Status {
+        Config::load_::<Status>("_status")
+    }
+
+    fn store(&self) {
+        Config::store_(self, "_status");
+    }
+
+    pub fn get(k: &str) -> String {
+        STATUS
+            .read()
+            .unwrap()
+            .values
+            .get(k)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    pub fn set(k: &str, v: String) {
+        if Self::get(k) == v {
+            return;
+        }
+
+        let mut st = STATUS.write().unwrap();
+        st.values.insert(k.to_owned(), v);
+        st.store();
+    }
 }
 
 #[cfg(test)]
