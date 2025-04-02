@@ -452,6 +452,12 @@ message FileTransferSendRequest {
   string path = 2;
   bool include_hidden = 3;
   int32 file_num = 4;
+
+  enum FileType {
+    Generic = 0;
+    Printer = 1;
+  }
+  FileType file_type = 5;
 }
 
 message FileTransferSendConfirmRequest {

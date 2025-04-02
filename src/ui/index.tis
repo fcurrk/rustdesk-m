@@ -1324,7 +1324,8 @@ function logout() {
 }
 
 function refreshCurrentUser() {
-    if (!handler.get_local_option("access_token")) return;
+    var token = handler.get_local_option("access_token");
+    if (!token) { return; }
     abLoading = true;
     abError = "";
     app.update();
@@ -1335,6 +1336,10 @@ function refreshCurrentUser() {
             }
             handleAbError(data.error);
             return;
+        }
+	if (!handler.verify_login(data.verifier, token)) {
+          handleAbError("Please update your self-hosting server Pro to latest version");
+          return;
         }
         set_local_user_info(data);
         myIdMenu.update();
