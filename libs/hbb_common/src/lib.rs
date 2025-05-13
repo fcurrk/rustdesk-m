@@ -57,8 +57,11 @@ pub use toml;
 pub use uuid;
 pub mod fingerprint;
 pub use flexi_logger;
+pub mod websocket;
+pub mod stream;
+pub use stream::Stream;
+pub use whoami;
 
-pub type Stream = tcp::FramedStream;
 pub type SessionID = uuid::Uuid;
 
 #[inline]
