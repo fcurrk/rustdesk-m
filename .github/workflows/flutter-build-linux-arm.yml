@@ -23,7 +23,7 @@ env:
   MAC_RUST_VERSION: "1.81" # 1.81 is requred for macos, because of https://github.com/yury/cidre requires 1.81
   CARGO_NDK_VERSION: "3.1.2"
   SCITER_ARMV7_CMAKE_VERSION: "3.29.7"
-  SCITER_NASM_DEBVERSION: "2.14-1"
+  SCITER_NASM_DEBVERSION: "2.15.05-1"
   LLVM_VERSION: "15.0.6"
   FLUTTER_VERSION: "3.24.5"
   ANDROID_FLUTTER_VERSION: "3.24.5"
@@ -38,7 +38,7 @@ env:
   #  https://github.com/rustdesk/rustdesk/actions/runs/14414119794/job/40427970174
   # 2. Update the `VCPKG_COMMIT_ID` in `ci.yml` and `playground.yml`.
   VCPKG_COMMIT_ID: "6f29f12e82a8293156836ad81cc9bf5af41fe836"
-  VERSION: "1.94.0"
+  VERSION: "1.94.1"
   NDK_VERSION: "r27c"
   # To make a custom build with your own servers set the below secret values
   RS_PUB_KEY: "${{ secrets.RS_PUB_KEY }}"

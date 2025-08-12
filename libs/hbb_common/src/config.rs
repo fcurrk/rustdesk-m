@@ -97,6 +97,8 @@ lazy_static::lazy_static! {
         ]);
 }
 
+const NUM_CHARS: &[char] = &['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
 const CHARS: &[char] = &[
     '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
     'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -274,6 +276,8 @@ pub struct PeerConfig {
     #[serde(flatten)]
     pub lock_after_session_end: LockAfterSessionEnd,
     #[serde(flatten)]
+    pub terminal_persistent: TerminalPersistent,
+    #[serde(flatten)]
     pub privacy_mode: PrivacyMode,
     #[serde(flatten)]
     pub allow_swap_key: AllowSwapKey,
@@ -365,6 +369,7 @@ impl Default for PeerConfig {
             custom_image_quality: Self::default_custom_image_quality(),
             show_remote_cursor: Default::default(),
             lock_after_session_end: Default::default(),
+            terminal_persistent: Default::default(),
             privacy_mode: Default::default(),
             allow_swap_key: Default::default(),
             port_forwards: Default::default(),
@@ -893,9 +898,17 @@ impl Config {
     }
 
     pub fn get_auto_password(length: usize) -> String {
+        Self::get_auto_password_with_chars(length, CHARS)
+    }
+
+    pub fn get_auto_numeric_password(length: usize) -> String {
+        Self::get_auto_password_with_chars(length, NUM_CHARS)
+    }
+
+    fn get_auto_password_with_chars(length: usize, chars: &[char]) -> String {
         let mut rng = rand::thread_rng();
         (0..length)
-            .map(|_| CHARS[rng.gen::<usize>() % CHARS.len()])
+            .map(|_| chars[rng.gen::<usize>() % chars.len()])
             .collect()
     }
 
@@ -949,6 +962,15 @@ impl Config {
         }
         *lock = Some(config.key_pair.clone());
         config.key_pair
+    }
+
+    pub fn no_register_device() -> bool {
+        BUILTIN_SETTINGS
+            .read()
+            .unwrap()
+            .get(keys::OPTION_REGISTER_DEVICE)
+            .map(|v| v == "N")
+            .unwrap_or(false)
     }
 
     pub fn get_id() -> String {
@@ -1079,9 +1101,46 @@ impl Config {
     }
 
     pub fn set_socks(socks: Option<Socks5Server>) {
+        if OVERWRITE_SETTINGS
+            .read()
+            .unwrap()
+            .contains_key(keys::OPTION_PROXY_URL)
+        {
+            return;
+        }
+
         let mut config = CONFIG2.write().unwrap();
         if config.socks == socks {
             return;
+        }
+        if config.socks.is_none() {
+            let equal_to_default = |key: &str, value: &str| {
+                DEFAULT_SETTINGS
+                    .read()
+                    .unwrap()
+                    .get(key)
+                    .map_or(false, |x| *x == value)
+            };
+            let contains_url = DEFAULT_SETTINGS
+                .read()
+                .unwrap()
+                .get(keys::OPTION_PROXY_URL)
+                .is_some();
+            let url = equal_to_default(
+                keys::OPTION_PROXY_URL,
+                &socks.clone().unwrap_or_default().proxy,
+            );
+            let username = equal_to_default(
+                keys::OPTION_PROXY_USERNAME,
+                &socks.clone().unwrap_or_default().username,
+            );
+            let password = equal_to_default(
+                keys::OPTION_PROXY_PASSWORD,
+                &socks.clone().unwrap_or_default().password,
+            );
+            if contains_url && url && username && password {
+                return;
+            }
         }
         config.socks = socks;
         config.store();
@@ -1603,6 +1662,12 @@ serde_field_bool!(
     "lock_after_session_end",
     default_lock_after_session_end,
     "LockAfterSessionEnd::default_lock_after_session_end"
+);
+serde_field_bool!(
+    TerminalPersistent,
+    "terminal-persistent",
+    default_terminal_persistent,
+    "TerminalPersistent::default_terminal_persistent"
 );
 serde_field_bool!(
     PrivacyMode,
@@ -2386,12 +2451,15 @@ pub mod keys {
     pub const OPTION_ENABLE_CLIPBOARD: &str = "enable-clipboard";
     pub const OPTION_ENABLE_FILE_TRANSFER: &str = "enable-file-transfer";
     pub const OPTION_ENABLE_CAMERA: &str = "enable-camera";
+    pub const OPTION_ENABLE_TERMINAL: &str = "enable-terminal";
+    pub const OPTION_TERMINAL_PERSISTENT: &str = "terminal-persistent";
     pub const OPTION_ENABLE_AUDIO: &str = "enable-audio";
     pub const OPTION_ENABLE_TUNNEL: &str = "enable-tunnel";
     pub const OPTION_ENABLE_REMOTE_RESTART: &str = "enable-remote-restart";
     pub const OPTION_ENABLE_RECORD_SESSION: &str = "enable-record-session";
     pub const OPTION_ENABLE_BLOCK_INPUT: &str = "enable-block-input";
     pub const OPTION_ALLOW_REMOTE_CONFIG_MODIFICATION: &str = "allow-remote-config-modification";
+    pub const OPTION_ALLOW_NUMERNIC_ONE_TIME_PASSWORD: &str = "allow-numeric-one-time-password";
     pub const OPTION_ENABLE_LAN_DISCOVERY: &str = "enable-lan-discovery";
     pub const OPTION_DIRECT_SERVER: &str = "direct-server";
     pub const OPTION_DIRECT_ACCESS_PORT: &str = "direct-access-port";
@@ -2409,6 +2477,7 @@ pub mod keys {
     pub const OPTION_ENABLE_HWCODEC: &str = "enable-hwcodec";
     pub const OPTION_APPROVE_MODE: &str = "approve-mode";
     pub const OPTION_VERIFICATION_METHOD: &str = "verification-method";
+    pub const OPTION_TEMPORARY_PASSWORD_LENGTH: &str = "temporary-password-length";
     pub const OPTION_CUSTOM_RENDEZVOUS_SERVER: &str = "custom-rendezvous-server";
     pub const OPTION_API_SERVER: &str = "api-server";
     pub const OPTION_KEY: &str = "key";
@@ -2421,8 +2490,9 @@ pub mod keys {
     pub const OPTION_ENABLE_TRUSTED_DEVICES: &str = "enable-trusted-devices";
     pub const OPTION_AV1_TEST: &str = "av1-test";
     pub const OPTION_TRACKPAD_SPEED: &str = "trackpad-speed";
+    pub const OPTION_REGISTER_DEVICE: &str = "register-device";
 
-    // buildin options
+    // built-in options
     pub const OPTION_DISPLAY_NAME: &str = "display-name";
     pub const OPTION_DISABLE_UDP: &str = "disable-udp";
     pub const OPTION_PRESET_DEVICE_GROUP_NAME: &str = "preset-device-group-name";
@@ -2435,6 +2505,10 @@ pub mod keys {
     pub const OPTION_HIDE_PROXY_SETTINGS: &str = "hide-proxy-settings";
     pub const OPTION_HIDE_REMOTE_PRINTER_SETTINGS: &str = "hide-remote-printer-settings";
     pub const OPTION_HIDE_WEBSOCKET_SETTINGS: &str = "hide-websocket-settings";
+
+    // Connection punch-through options
+    pub const OPTION_ENABLE_UDP_PUNCH: &str = "enable-udp-punch";
+    pub const OPTION_ENABLE_IPV6_PUNCH: &str = "enable-ipv6-punch";
     pub const OPTION_HIDE_USERNAME_ON_CARD: &str = "hide-username-on-card";
     pub const OPTION_HIDE_HELP_CARDS: &str = "hide-help-cards";
     pub const OPTION_DEFAULT_CONNECT_PASSWORD: &str = "default-connect-password";
@@ -2444,6 +2518,7 @@ pub mod keys {
     pub const OPTION_ONE_WAY_FILE_TRANSFER: &str = "one-way-file-transfer";
     pub const OPTION_ALLOW_HTTPS_21114: &str = "allow-https-21114";
     pub const OPTION_ALLOW_HOSTNAME_AS_ID: &str = "allow-hostname-as-id";
+    pub const OPTION_HIDE_POWERED_BY_ME: &str = "hide-powered-by-me";
 
     // flutter local options
     pub const OPTION_FLUTTER_REMOTE_MENUBAR_STATE: &str = "remoteMenubarState";
@@ -2501,6 +2576,7 @@ pub mod keys {
         OPTION_DISPLAYS_AS_INDIVIDUAL_WINDOWS,
         OPTION_USE_ALL_MY_DISPLAYS_FOR_THE_REMOTE_SESSION,
         OPTION_VIEW_STYLE,
+        OPTION_TERMINAL_PERSISTENT,
         OPTION_SCROLL_STYLE,
         OPTION_IMAGE_QUALITY,
         OPTION_CUSTOM_IMAGE_QUALITY,
@@ -2541,6 +2617,8 @@ pub mod keys {
         OPTION_ALLOW_REMOTE_CM_MODIFICATION,
         OPTION_ALLOW_AUTO_RECORD_OUTGOING,
         OPTION_VIDEO_SAVE_DIRECTORY,
+        OPTION_ENABLE_UDP_PUNCH,
+        OPTION_ENABLE_IPV6_PUNCH,
     ];
     // DEFAULT_SETTINGS, OVERWRITE_SETTINGS
     pub const KEYS_SETTINGS: &[&str] = &[
@@ -2549,6 +2627,7 @@ pub mod keys {
         OPTION_ENABLE_CLIPBOARD,
         OPTION_ENABLE_FILE_TRANSFER,
         OPTION_ENABLE_CAMERA,
+        OPTION_ENABLE_TERMINAL,
         OPTION_ENABLE_REMOTE_PRINTER,
         OPTION_ENABLE_AUDIO,
         OPTION_ENABLE_TUNNEL,
@@ -2556,6 +2635,7 @@ pub mod keys {
         OPTION_ENABLE_RECORD_SESSION,
         OPTION_ENABLE_BLOCK_INPUT,
         OPTION_ALLOW_REMOTE_CONFIG_MODIFICATION,
+        OPTION_ALLOW_NUMERNIC_ONE_TIME_PASSWORD,
         OPTION_ENABLE_LAN_DISCOVERY,
         OPTION_DIRECT_SERVER,
         OPTION_DIRECT_ACCESS_PORT,
@@ -2571,6 +2651,7 @@ pub mod keys {
         OPTION_ENABLE_HWCODEC,
         OPTION_APPROVE_MODE,
         OPTION_VERIFICATION_METHOD,
+        OPTION_TEMPORARY_PASSWORD_LENGTH,
         OPTION_PROXY_URL,
         OPTION_PROXY_USERNAME,
         OPTION_PROXY_PASSWORD,
@@ -2608,6 +2689,8 @@ pub mod keys {
         OPTION_ONE_WAY_FILE_TRANSFER,
         OPTION_ALLOW_HTTPS_21114,
         OPTION_ALLOW_HOSTNAME_AS_ID,
+        OPTION_REGISTER_DEVICE,
+        OPTION_HIDE_POWERED_BY_ME,
     ];
 }
 
