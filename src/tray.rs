@@ -25,7 +25,7 @@ pub fn start_tray() {
     #[cfg(target_os = "linux")]
     crate::server::check_zombie();
 
-//    allow_err!(make_tray());
+    allow_err!(make_tray());
 }
 
 fn make_tray() -> hbb_common::ResultType<()> {
