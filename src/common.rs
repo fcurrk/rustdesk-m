@@ -1029,7 +1029,7 @@ fn get_api_server_(api: String, custom: String) -> String {
 
 #[inline]
 pub fn using_public_server() -> bool {
-    // 直接返回 false，确保帧率选项始终显示
+//    url.contains("rustdesk.com")
     false
 }
 
