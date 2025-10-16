@@ -102,7 +102,7 @@ fn use_null_stdio() -> bool {
     #[cfg(windows)]
     {
         // When running in CMD on Windows 7, using Stdio::inherit() with spawn returns an "invalid handle" error.
-        // Since using Stdio::null() didn’t cause any issues, and determining whether the program is launched from CMD or by double-clicking would require calling more APIs during startup, we also use Stdio::null() when launched by double-clicking on Windows 7.
+        // Since using Stdio::null() didnâ€™t cause any issues, and determining whether the program is launched from CMD or by double-clicking would require calling more APIs during startup, we also use Stdio::null() when launched by double-clicking on Windows 7.
         let is_windows_7 = is_windows_7();
         println!("is windows7: {}", is_windows_7);
         return is_windows_7;
