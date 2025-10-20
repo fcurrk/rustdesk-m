@@ -1652,6 +1652,14 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Modify vcpkg.json for armv7
+        if: matrix.job.vcpkg-triplet == 'arm-linux'
+        run: |
+          # Replace the baseline in vcpkg.json with ARMV7_VCPKG_COMMIT_ID for armv7 builds
+          sed -i 's/"baseline": ".*"/"baseline": "${{ env.ARMV7_VCPKG_COMMIT_ID }}"/' vcpkg.json
+          echo "Modified vcpkg.json for armv7 build:"
+          grep -A 2 -B 2 '"baseline"' vcpkg.json
+
       - name: Free Space
         run: |
           df -h
