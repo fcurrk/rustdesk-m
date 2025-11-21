@@ -721,5 +721,13 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Show virtual joystick", "顯示虛擬搖桿"),
         ("Edit note", "編輯備註"),
         ("Alias", "別名"),
+        ("ScrollEdge", "邊緣滾動"),
+        ("Allow insecure TLS fallback", "允許返回到不安全的 TLS 連接"),
+        ("allow-insecure-tls-fallback-tip", "默認情況下，RustDesk 對于使用 TLS 的協議，將驗證服務器證書。\n啟用此選項后，RustDesk 在驗證失敗時，將轉為跳過驗證步驟并繼續連接。"),
+        ("Disable UDP", "禁用 UDP"),
+        ("disable-udp-tip", "控制是否僅使用TCP。\n啟用此選項後，RustDesk 將不再使用UDP 21116，而是使用TCP 21116。"),
+        ("server-oss-not-support-tip", "注意：RustDesk 開源服務器(OSS server) 不包含此功能。"),
+        ("input note here", "輸入備註"),
+        ("note-at-conn-end-tip", "在連線結束時要求備註"),
     ].iter().cloned().collect();
 }
