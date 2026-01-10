@@ -636,6 +636,23 @@ impl Config {
         (self.id.is_empty() && self.enc_id.is_empty()) || self.key_pair.0.is_empty()
     }
 
+    /// Get the user's home directory for configuration purposes.
+    ///
+    /// # Security Note
+    /// This function uses `dirs_next::home_dir()` which reads the `$HOME` environment
+    /// variable on Unix systems. This is acceptable for user-space operations (config
+    /// file storage, logging) where the user may intentionally redirect their home
+    /// directory.
+    ///
+    /// **DO NOT use this function in privileged contexts** (e.g., code executed via
+    /// `gtk_sudo` or system services running as root). For privileged operations on
+    /// Linux, use `crate::platform::linux::get_home_dir_trusted()` which bypasses
+    /// the `$HOME` environment variable and queries the system password database
+    /// directly via `getpwuid`.
+    ///
+    /// Using `$HOME` in privileged contexts creates a confused-deputy vulnerability
+    /// where an attacker can manipulate the environment variable to inject malicious
+    /// paths into privileged operations.
     pub fn get_home() -> PathBuf {
         #[cfg(any(target_os = "android", target_os = "ios"))]
         return PathBuf::from(APP_HOME_DIR.read().unwrap().as_str());
@@ -676,6 +693,12 @@ impl Config {
         }
     }
 
+    /// Get the log directory path.
+    ///
+    /// # Security Note
+    /// On macOS, this function uses `dirs_next::home_dir()` which reads the `$HOME`
+    /// environment variable. On Linux/Android, it uses `Self::get_home()`.
+    /// See [`Self::get_home()`] for security considerations regarding `$HOME` usage.
     #[allow(unreachable_code)]
     pub fn log_path() -> PathBuf {
         #[cfg(target_os = "macos")]
@@ -988,6 +1011,33 @@ impl Config {
             .unwrap_or(false)
     }
 
+    pub fn is_disable_change_permanent_password() -> bool {
+        BUILTIN_SETTINGS
+            .read()
+            .unwrap()
+            .get(keys::OPTION_DISABLE_CHANGE_PERMANENT_PASSWORD)
+            .map(|v| v == "Y")
+            .unwrap_or(false)
+    }
+
+    pub fn is_disable_change_id() -> bool {
+        BUILTIN_SETTINGS
+            .read()
+            .unwrap()
+            .get(keys::OPTION_DISABLE_CHANGE_ID)
+            .map(|v| v == "Y")
+            .unwrap_or(false)
+    }
+
+    pub fn is_disable_unlock_pin() -> bool {
+        BUILTIN_SETTINGS
+            .read()
+            .unwrap()
+            .get(keys::OPTION_DISABLE_UNLOCK_PIN)
+            .map(|v| v == "Y")
+            .unwrap_or(false)
+    }
+
     pub fn get_id() -> String {
         let mut id = CONFIG.read().unwrap().id.clone();
         if id.is_empty() {
@@ -1074,13 +1124,18 @@ impl Config {
     }
 
     pub fn set_permanent_password(password: &str) {
+        if Self::is_disable_change_permanent_password() {
+            return;
+        }
         if HARD_SETTINGS
             .read()
             .unwrap()
             .get("password")
             .map_or(false, |v| v == password)
         {
-            return;
+            if CONFIG.read().unwrap().password.is_empty() {
+                return;
+            }
         }
         let mut config = CONFIG.write().unwrap();
         if password == config.password {
@@ -1220,10 +1275,16 @@ impl Config {
     }
 
     pub fn get_unlock_pin() -> String {
+        if Self::is_disable_unlock_pin() {
+            return String::new();
+        }
         CONFIG2.read().unwrap().unlock_pin.clone()
     }
 
     pub fn set_unlock_pin(pin: &str) {
+        if Self::is_disable_unlock_pin() {
+            return;
+        }
         let mut config = CONFIG2.write().unwrap();
         if pin == config.unlock_pin {
             return;
@@ -2557,6 +2618,17 @@ pub mod keys {
     pub const OPTION_TRACKPAD_SPEED: &str = "trackpad-speed";
     pub const OPTION_REGISTER_DEVICE: &str = "register-device";
     pub const OPTION_RELAY_SERVER: &str = "relay-server";
+    pub const OPTION_ICE_SERVERS: &str = "ice-servers";
+    /// Maximum number of files allowed during a single file transfer request.
+    ///
+    /// Key: `file-transfer-max-files`.
+    /// Unit: number of files (not bytes).
+    ///
+    /// Behaviour:
+    /// - If set to a positive integer N, at most N files are allowed.
+    /// - If set to 0, a safe built-in default is used (see DEFAULT_MAX_VALIDATED_FILES).
+    /// - If unset, negative, or non-integer, no explicit limit is enforced for backward compatibility.
+    pub const OPTION_FILE_TRANSFER_MAX_FILES: &str = "file-transfer-max-files";
     pub const OPTION_DISABLE_UDP: &str = "disable-udp";
     pub const OPTION_ALLOW_INSECURE_TLS_FALLBACK: &str = "allow-insecure-tls-fallback";
     pub const OPTION_SHOW_VIRTUAL_MOUSE: &str = "show-virtual-mouse";
@@ -2593,6 +2665,9 @@ pub mod keys {
     pub const OPTION_ALLOW_HOSTNAME_AS_ID: &str = "allow-hostname-as-id";
     pub const OPTION_HIDE_POWERED_BY_ME: &str = "hide-powered-by-me";
     pub const OPTION_MAIN_WINDOW_ALWAYS_ON_TOP: &str = "main-window-always-on-top";
+    pub const OPTION_DISABLE_CHANGE_PERMANENT_PASSWORD: &str = "disable-change-permanent-password";
+    pub const OPTION_DISABLE_CHANGE_ID: &str = "disable-change-id";
+    pub const OPTION_DISABLE_UNLOCK_PIN: &str = "disable-unlock-pin";
 
     // flutter local options
     pub const OPTION_FLUTTER_REMOTE_MENUBAR_STATE: &str = "remoteMenubarState";
@@ -2753,6 +2828,7 @@ pub mod keys {
         OPTION_ENABLE_ANDROID_SOFTWARE_ENCODING_HALF_SCALE,
         OPTION_ENABLE_TRUSTED_DEVICES,
         OPTION_RELAY_SERVER,
+        OPTION_ICE_SERVERS,
         OPTION_DISABLE_UDP,
         OPTION_ALLOW_INSECURE_TLS_FALLBACK,
     ];
@@ -2782,6 +2858,10 @@ pub mod keys {
         OPTION_REGISTER_DEVICE,
         OPTION_HIDE_POWERED_BY_ME,
         OPTION_MAIN_WINDOW_ALWAYS_ON_TOP,
+        OPTION_FILE_TRANSFER_MAX_FILES,
+        OPTION_DISABLE_CHANGE_PERMANENT_PASSWORD,
+        OPTION_DISABLE_CHANGE_ID,
+        OPTION_DISABLE_UNLOCK_PIN,
     ];
 }
 

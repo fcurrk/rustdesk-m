@@ -24,6 +24,7 @@ import 'package:provider/provider.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:window_size/window_size.dart' as window_size;
 
@@ -44,7 +45,7 @@ import 'package:flutter_hbb/native/win32.dart'
     if (dart.library.html) 'package:flutter_hbb/web/win32.dart';
 import 'package:flutter_hbb/native/common.dart'
     if (dart.library.html) 'package:flutter_hbb/web/common.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_hbb/utils/http_service.dart' as http;
 
 final globalKey = GlobalKey<NavigatorState>();
 final navigationBarKey = GlobalKey();
@@ -1010,13 +1011,15 @@ makeMobileActionsOverlayEntry(VoidCallback? onHide, {FFI? ffi}) {
   });
 }
 
-void showToast(String text, {Duration timeout = const Duration(seconds: 3)}) {
+void showToast(String text,
+    {Duration timeout = const Duration(seconds: 3),
+    Alignment alignment = const Alignment(0.0, 0.8)}) {
   final overlayState = globalKey.currentState?.overlay;
   if (overlayState == null) return;
   final entry = OverlayEntry(builder: (context) {
     return IgnorePointer(
         child: Align(
-            alignment: const Alignment(0.0, 0.8),
+            alignment: alignment,
             child: Container(
               decoration: BoxDecoration(
                 color: MyTheme.color(context).toastBg,
@@ -1681,13 +1684,12 @@ class LastWindowPosition {
       this.offsetHeight, this.isMaximized, this.isFullscreen);
 
   bool equals(LastWindowPosition other) {
-    return (
-      (width == other.width) &&
-      (height == other.height) &&
-      (offsetWidth == other.offsetWidth) &&
-      (offsetHeight == other.offsetHeight) &&
-      (isMaximized == other.isMaximized) &&
-      (isFullscreen == other.isFullscreen));
+    return ((width == other.width) &&
+        (height == other.height) &&
+        (offsetWidth == other.offsetWidth) &&
+        (offsetHeight == other.offsetHeight) &&
+        (isMaximized == other.isMaximized) &&
+        (isFullscreen == other.isFullscreen));
   }
 
   Map<String, dynamic> toJson() {
@@ -1736,22 +1738,29 @@ final Debouncer _saveWindowDebounce = Debouncer(delay: Duration(seconds: 1));
 
 /// Save window position and size on exit
 /// Note that windowId must be provided if it's subwindow
-Future<void> saveWindowPosition(WindowType type, {int? windowId, bool? flush}) async {
+Future<void> saveWindowPosition(WindowType type,
+    {int? windowId, bool? flush}) async {
   if (type != WindowType.Main && windowId == null) {
     debugPrint(
         "Error: windowId cannot be null when saving positions for sub window");
   }
 
-  late Offset position;
-  late Size sz;
+  Offset? position;
+  Size? sz;
   late bool isMaximized;
   bool isFullscreen = stateGlobal.fullscreen.isTrue;
+
   setPreFrame() {
     final pos = bind.getLocalFlutterOption(k: windowFramePrefix + type.name);
     var lpos = LastWindowPosition.loadFromString(pos);
-    position = Offset(
-        lpos?.offsetWidth ?? position.dx, lpos?.offsetHeight ?? position.dy);
-    sz = Size(lpos?.width ?? sz.width, lpos?.height ?? sz.height);
+    if (lpos != null) {
+      if (lpos.offsetWidth != null && lpos.offsetHeight != null) {
+        position = Offset(lpos.offsetWidth!, lpos.offsetHeight!);
+      }
+      if (lpos.width != null && lpos.height != null) {
+        sz = Size(lpos.width!, lpos.height!);
+      }
+    }
   }
 
   switch (type) {
@@ -1791,24 +1800,25 @@ Future<void> saveWindowPosition(WindowType type, {int? windowId, bool? flush}) a
       }
       break;
   }
-  if (isWindows) {
+  if (isWindows && position != null) {
     const kMinOffset = -10000;
     const kMaxOffset = 10000;
-    if (position.dx < kMinOffset ||
-        position.dy < kMinOffset ||
-        position.dx > kMaxOffset ||
-        position.dy > kMaxOffset) {
+    if (position!.dx < kMinOffset ||
+        position!.dy < kMinOffset ||
+        position!.dx > kMaxOffset ||
+        position!.dy > kMaxOffset) {
       debugPrint("Invalid position: $position, ignore saving position");
       return;
     }
   }
 
-  final pos = LastWindowPosition(
-      sz.width, sz.height, position.dx, position.dy, isMaximized, isFullscreen);
+  final pos = LastWindowPosition(sz?.width, sz?.height, position?.dx,
+      position?.dy, isMaximized, isFullscreen);
 
   final WindowKey key = (type: type, windowId: windowId);
 
-  final bool haveNewWindowPosition = (_lastWindowPosition == null) || !pos.equals(_lastWindowPosition!);
+  final bool haveNewWindowPosition =
+      (_lastWindowPosition == null) || !pos.equals(_lastWindowPosition!);
   final bool isPreviousNewWindowPositionPending = _saveWindowDebounce.isRunning;
 
   if (haveNewWindowPosition || isPreviousNewWindowPositionPending) {
@@ -1834,10 +1844,11 @@ Future<void> _saveWindowPositionActual(WindowKey key) async {
     await bind.setLocalFlutterOption(
         k: windowFramePrefix + key.type.name, v: pos.toString());
 
-    if ((key.type == WindowType.RemoteDesktop || key.type == WindowType.ViewCamera) &&
+    if ((key.type == WindowType.RemoteDesktop ||
+            key.type == WindowType.ViewCamera) &&
         key.windowId != null) {
-      await _saveSessionWindowPosition(
-          key.type, key.windowId!, pos.isMaximized ?? false, pos.isFullscreen ?? false, pos);
+      await _saveSessionWindowPosition(key.type, key.windowId!,
+          pos.isMaximized ?? false, pos.isFullscreen ?? false, pos);
     }
   }
 }
@@ -1924,44 +1935,41 @@ Future<Offset?> _adjustRestoreMainWindowOffset(
     return null;
   }
 
-  double? frameLeft;
-  double? frameTop;
-  double? frameRight;
-  double? frameBottom;
-
   if (isDesktop || isWebDesktop) {
-    for (final screen in await window_size.getScreenList()) {
-      frameLeft = frameLeft == null
-          ? screen.visibleFrame.left
-          : min(screen.visibleFrame.left, frameLeft);
-      frameTop = frameTop == null
-          ? screen.visibleFrame.top
-          : min(screen.visibleFrame.top, frameTop);
-      frameRight = frameRight == null
-          ? screen.visibleFrame.right
-          : max(screen.visibleFrame.right, frameRight);
-      frameBottom = frameBottom == null
-          ? screen.visibleFrame.bottom
-          : max(screen.visibleFrame.bottom, frameBottom);
+    final screens = await window_size.getScreenList();
+    if (screens.isNotEmpty) {
+      final windowRect = Rect.fromLTWH(left, top, width, height);
+      bool isVisible = false;
+      for (final screen in screens) {
+        final intersection = windowRect.intersect(screen.visibleFrame);
+        if (intersection.width >= 10.0 && intersection.height >= 10.0) {
+          isVisible = true;
+          break;
+        }
+      }
+      if (!isVisible) {
+        return null;
+      }
+      return Offset(left, top);
     }
   }
-  if (frameLeft == null) {
-    frameLeft = 0.0;
-    frameTop = 0.0;
-    frameRight = ((isDesktop || isWebDesktop)
-            ? kDesktopMaxDisplaySize
-            : kMobileMaxDisplaySize)
-        .toDouble();
-    frameBottom = ((isDesktop || isWebDesktop)
-            ? kDesktopMaxDisplaySize
-            : kMobileMaxDisplaySize)
-        .toDouble();
-  }
+
+  double frameLeft = 0.0;
+  double frameTop = 0.0;
+  double frameRight = ((isDesktop || isWebDesktop)
+          ? kDesktopMaxDisplaySize
+          : kMobileMaxDisplaySize)
+      .toDouble();
+  double frameBottom = ((isDesktop || isWebDesktop)
+          ? kDesktopMaxDisplaySize
+          : kMobileMaxDisplaySize)
+      .toDouble();
+
   final minWidth = 10.0;
-  if ((left + minWidth) > frameRight! ||
-      (top + minWidth) > frameBottom! ||
+  if ((left + minWidth) > frameRight ||
+      (top + minWidth) > frameBottom ||
       (left + width - minWidth) < frameLeft ||
-      top < frameTop!) {
+      top < frameTop) {
     return null;
   } else {
     return Offset(left, top);
@@ -2668,6 +2676,31 @@ class SimpleWrapper<T> {
   SimpleWrapper(this.value);
 }
 
+/// Wakelock manager with reference counting for desktop.
+/// Ensures wakelock is only disabled when all sessions are closed/minimized.
+///
+/// Note: Each isolate has its own WakelockPlus instance with independent assertion.
+/// As long as one isolate has wakelock enabled, the screen stays awake.
+/// This manager handles multiple tabs within the same isolate.
+class WakelockManager {
+  static final Set<UniqueKey> _enabledKeys = {};
+
+  static void enable(UniqueKey key) {
+    if (isLinux) return;
+    _enabledKeys.add(key);
+    WakelockPlus.enable();
+  }
+
+  static void disable(UniqueKey key) {
+    if (isLinux) return;
+    if (_enabledKeys.remove(key)) {
+      if (_enabledKeys.isEmpty) {
+        WakelockPlus.disable();
+      }
+    }
+  }
+}
+
 /// call this to reload current window.
 ///
 /// [Note]
@@ -2941,7 +2974,7 @@ Future<void> updateSystemWindowTheme() async {
 ///
 /// Note: not found a general solution for rust based AVFoundation bingding.
 /// [AVFoundation] crate has compile error.
-const kMacOSPermChannel = MethodChannel("org.rustdesk.rustdesk/macos");
+const kMacOSPermChannel = MethodChannel("org.rustdesk.rustdesk/host");
 
 enum PermissionAuthorizeType {
   undetermined,
@@ -3008,10 +3041,21 @@ Future<void> start_service(bool is_start) async {
 }
 
 Future<bool> canBeBlocked() async {
-  var access_mode = await bind.mainGetOption(key: kOptionAccessMode);
+  // First check control permission
+  final controlPermission = await bind.mainGetCommon(
+      key: "is-remote-modify-enabled-by-control-permissions");
+  if (controlPermission == "true") {
+    return false;
+  } else if (controlPermission == "false") {
+    return true;
+  }
+
+  // Check local settings
+  var accessMode = await bind.mainGetOption(key: kOptionAccessMode);
+  var isCustomAccessMode = accessMode != 'full' && accessMode != 'view';
   var option = option2bool(kOptionAllowRemoteConfigModification,
       await bind.mainGetOption(key: kOptionAllowRemoteConfigModification));
-  return access_mode == 'view' || (access_mode.isEmpty && !option);
+  return accessMode == 'view' || (isCustomAccessMode && !option);
 }
 
 // to-do: web not implemented
@@ -3774,6 +3818,16 @@ setResizable(bool resizable) {
 
 isOptionFixed(String key) => bind.mainIsOptionFixed(key: key);
 
+bool isChangePermanentPasswordDisabled() =>
+    bind.mainGetBuildinOption(key: kOptionDisableChangePermanentPassword) ==
+    'Y';
+
+bool isChangeIdDisabled() =>
+    bind.mainGetBuildinOption(key: kOptionDisableChangeId) == 'Y';
+
+bool isUnlockPinDisabled() =>
+    bind.mainGetBuildinOption(key: kOptionDisableUnlockPin) == 'Y';
+
 bool? _isCustomClient;
 bool get isCustomClient {
   _isCustomClient ??= bind.isCustomClient();
@@ -4016,4 +4070,24 @@ String decode_http_response(http.Response resp) {
 
 bool peerTabShowNote(PeerTabIndex peerTabIndex) {
   return peerTabIndex == PeerTabIndex.ab || peerTabIndex == PeerTabIndex.group;
+}
+
+// TODO: We should support individual bits combinations in the future.
+// But for now, just keep it simple, because the old code only supports single button.
+// No users have requested multi-button support yet.
+String mouseButtonsToPeer(int buttons) {
+  switch (buttons) {
+    case kPrimaryMouseButton:
+      return 'left';
+    case kSecondaryMouseButton:
+      return 'right';
+    case kMiddleMouseButton:
+      return 'wheel';
+    case kBackMouseButton:
+      return 'back';
+    case kForwardMouseButton:
+      return 'forward';
+    default:
+      return '';
+  }
 }
