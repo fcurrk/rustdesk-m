@@ -700,9 +700,6 @@ class App: Reactor.Component
                         </div>}
                         {!outgoing_only && <PasswordArea />}
                     </div>
-                    {(!is_win || handler.is_installed() || disable_installation) ? "" : <InstallMe />}
-                    {software_update_url && !disable_installation ? <UpdateMe /> : ""}
-                    {is_win && handler.is_installed() && !software_update_url && handler.is_installed_lower_version() && !disable_installation ? <UpgradeMe /> : ""}
                     {is_can_screen_recording ? "": <CanScreenRecording />}
                     {is_can_screen_recording && !handler.is_process_trusted(false) ? <TrustMe /> : ""}
                     {!service_stopped && is_can_screen_recording && handler.is_process_trusted(false) && handler.is_installed() && !handler.is_installed_daemon(false) ? <InstallDaemon /> : ""}
@@ -713,16 +710,8 @@ class App: Reactor.Component
                 </div>
                 {!incoming_only && <div .right-pane>
                     <div .right-content>
-                        <div .card-connect>
-                            <div .title>{translate('Control Remote Desktop')}</div>
-                            <ID @{this.remote_id} />
-                            <div .right-buttons>
-                                <button .button .outline #file-transfer>{translate('Transfer file')}</button>
-                                <button .button #connect>{translate('Connect')}</button>
-                            </div>
+                        <div .custom-title>Rustdesk
                         </div>
-                        <MultipleSessions @{this.multipleSessions} />
-                    </div>
                     {!outgoing_only ? <ConnectStatus @{this.connect_status} /> : ""}
                 </div>}
                 <div #overlay style="position: absolute;size:*;background:black;opacity:0.5;display:none" />
