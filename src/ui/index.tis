@@ -525,7 +525,7 @@ class MyIdMenu: Reactor.Component {
                 <Enhancements />
                 {!disable_settings && <li #allow-remote-config-modification><span>{svg_checkmark}</span>{translate('Enable remote configuration modification')}</li>}
                 {!disable_settings && <div .separator />}
-                {!disable_settings && !hide_server_settings && <li #custom-server>{translate('ID/Relay Server')}</li>}
+                {/*{!disable_settings && !hide_server_settings && <li #custom-server>{translate('ID/Relay Server')}</li>}*/}
                 {!disable_settings && <li #whitelist title={translate('whitelist_tip')}>{translate('IP Whitelisting')}</li>}
                 {!disable_settings && !hide_proxy_settings && <li #socks5-server>{translate('Socks5/Http(s) Proxy')}</li>}
                 {!disable_settings && !hide_websocket_settings && <li #allow-websocket><span>{svg_checkmark}</span>{translate('Use WebSocket')}</li>}
@@ -537,8 +537,8 @@ class MyIdMenu: Reactor.Component {
                 {!disable_settings && <DirectServer />}
                 {!disable_settings && false && handler.using_public_server() && <li #allow-always-relay><span>{svg_checkmark}</span>{translate('Always connect via relay')}</li>}
                 {!disable_change_id && handler.is_ok_change_id() ? <div .separator /> : ""}
-                <li #allow-darktheme><span>{svg_checkmark}</span>{translate('Dark Theme')}</li>
-                <Languages />
+                {/*<li #allow-darktheme><span>{svg_checkmark}</span>{translate('Dark Theme')}</li>*/}
+                {/*<Languages />*/}
                 {disable_installation ? "" : <li #allow-auto-update><span>{svg_checkmark}</span>{translate('Auto update')}</li>} 
                 <li>{handler.get_app_name()} {translate('Version')} {": "}{handler.get_version()}</li>
             </menu>
