@@ -1659,8 +1659,8 @@ pub async fn secure_tcp(conn: &mut Stream, key: &str) -> ResultType<()> {
     if use_ws() {
         return Ok(());
     }
-// Fix client connection failure or timeout
-    return Ok(());
+// Fix client connection failure or timeout ,>1.4.0 No need to modify
+//    return Ok(());
     let rs_pk = get_rs_pk(key);
     let Some(rs_pk) = rs_pk else {
         bail!("Handshake failed: invalid public key from rendezvous server");
