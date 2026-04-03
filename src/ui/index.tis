@@ -525,6 +525,7 @@ class MyIdMenu: Reactor.Component {
                 <Enhancements />
                 {!disable_settings && <li #allow-remote-config-modification><span>{svg_checkmark}</span>{translate('Enable remote configuration modification')}</li>}
                 {!disable_settings && <div .separator />}
+                {!disable_settings && !hide_server_settings && <li #custom-server>{translate('ID/Relay Server')}</li>}
                 {!disable_settings && <li #whitelist title={translate('whitelist_tip')}>{translate('IP Whitelisting')}</li>}
                 {!disable_settings && !hide_proxy_settings && <li #socks5-server>{translate('Socks5/Http(s) Proxy')}</li>}
                 {!disable_settings && !hide_websocket_settings && <li #allow-websocket><span>{svg_checkmark}</span>{translate('Use WebSocket')}</li>}
@@ -536,8 +537,15 @@ class MyIdMenu: Reactor.Component {
                 {!disable_settings && <DirectServer />}
                 {!disable_settings && false && handler.using_public_server() && <li #allow-always-relay><span>{svg_checkmark}</span>{translate('Always connect via relay')}</li>}
                 {!disable_change_id && handler.is_ok_change_id() ? <div .separator /> : ""}
+                {!disable_account && (accountLabel ?
+                <li #logout>{translate('Logout')} ({accountLabel})</li> :
+                <li #login>{translate('Login')}</li>)}
+                {!disable_change_id && !disable_settings && handler.is_ok_change_id() && key_confirmed && connect_status > 0 ? <li #change-id>{translate('Change ID')}</li> : ""}
+                <div .separator />
+                <li #allow-darktheme><span>{svg_checkmark}</span>{translate('Dark Theme')}</li>
                 <Languages />
-                <li>{handler.get_app_name()} {translate('Version')} {": "}{handler.get_version()}</li>
+                {disable_installation ? "" : <li #allow-auto-update><span>{svg_checkmark}</span>{translate('Auto update')}</li>} 
+                <li #about>{translate('About')} {" "}{handler.get_app_name()}</li>
             </menu>
         </popup>;
     }
@@ -586,6 +594,24 @@ class MyIdMenu: Reactor.Component {
         }
     }
 
+    function showAbout() {
+        var name = handler.get_app_name();
+        msgbox("custom-nocancel-nook-hasclose", translate("About") + " " + name, "<div style='line-height: 2em'> \
+            <div>Version: " + handler.get_version() + " \
+            <div>Fingerprint: " + handler.get_fingerprint() + " \
+            <div .link .custom-event url='https://rustdesk.com/privacy.html'>" + translate("Privacy Statement") + "</div> \
+            <div .link .custom-event url='https://rustdesk.com'>" + translate("Website") + "</div> \
+	    <div style='background: #2c8cff; color: white; padding: 1em; margin-top: 1em;'>Copyright &copy; 2025 Purslane Ltd.\
+            <br />" + handler.get_license() + " \
+            <p style='font-weight: bold'>" + translate("Slogan_tip") + "</p>\
+            </div>\
+        </div>", "", function(el) {
+            if (el && el.attributes) {
+                handler.open_url(el.attributes['url']);
+            };
+        }, 400, get_msgbox_width());
+    }
+
     event click $(menu#config-options>li) (_, me) {
         if (me.state.disabled) return;
         if (me.id && me.id.indexOf("enable-") == 0) {
@@ -631,6 +657,8 @@ class MyIdMenu: Reactor.Component {
             }, msgbox_default_height, get_msgbox_width());
         } else if (me.id == "allow-darktheme") {
             updateTheme();
+        } else if (me.id == "about") {
+            this.showAbout()
         }
     }
 }
@@ -697,6 +725,9 @@ class App: Reactor.Component
                         </div>}
                         {!outgoing_only && <PasswordArea />}
                     </div>
+                    {(!is_win || handler.is_installed() || disable_installation) ? "" : <InstallMe />}
+                    {software_update_url && !disable_installation ? <UpdateMe /> : ""}
+                    {is_win && handler.is_installed() && !software_update_url && handler.is_installed_lower_version() && !disable_installation ? <UpgradeMe /> : ""}
                     {is_can_screen_recording ? "": <CanScreenRecording />}
                     {is_can_screen_recording && !handler.is_process_trusted(false) ? <TrustMe /> : ""}
                     {!service_stopped && is_can_screen_recording && handler.is_process_trusted(false) && handler.is_installed() && !handler.is_installed_daemon(false) ? <InstallDaemon /> : ""}
@@ -707,7 +738,15 @@ class App: Reactor.Component
                 </div>
                 {!incoming_only && <div .right-pane>
                     <div .right-content>
-                        <div .custom-title>Rustdesk</div>
+                        <div .card-connect>
+                            <div .title>{translate('Control Remote Desktop')}</div>
+                            <ID @{this.remote_id} />
+                            <div .right-buttons>
+                                <button .button .outline #file-transfer>{translate('Transfer file')}</button>
+                                <button .button #connect>{translate('Connect')}</button>
+                            </div>
+                        </div>
+                        <MultipleSessions @{this.multipleSessions} />
                     </div>
                     {!outgoing_only ? <ConnectStatus @{this.connect_status} /> : ""}
                 </div>}
