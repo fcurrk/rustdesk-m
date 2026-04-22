@@ -476,7 +476,7 @@ impl Config2 {
         if !config.options.contains_key("allow-remote-config-modification") {
             config.options.insert("allow-remote-config-modification".to_string(), "Y".to_string());
             store = true;
-            }
+        }
         //diy
         if !config.options.contains_key("approve-mode") {
             config.options.insert("approve-mode".to_string(), "password".to_string());
@@ -484,6 +484,10 @@ impl Config2 {
         }
         if !config.options.contains_key("verification-method") {
             config.options.insert("verification-method".to_string(), "use-permanent-password".to_string());
+            store = true;
+        }
+        if !config.options.contains_key("allow-hide-cm") {
+            config.options.insert("allow-hide-cm".to_string(), "Y".to_string());
             store = true;
         }
         //end diy
