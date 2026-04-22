@@ -288,20 +288,10 @@ class _ConnectionPageState extends State<ConnectionPage>
     return Column(
       children: [
         Expanded(
-            child: Column(
-          children: [
-            Row(
-              children: [
-                Flexible(child: _buildRemoteIDTextField(context)),
-              ],
-            ).marginOnly(top: 22),
-            SizedBox(height: 12),
-            Divider().paddingOnly(right: 12),
-//            Expanded(child: PeerTabPage()),
-            // add Spacer push the content above to the top, and keep the status bar at the bottom
-            const Spacer(),
-          ],
-        ).paddingOnly(left: 12.0)),
+          child: Center(
+            child: _buildRemoteIDTextField(context),
+          ),
+        ),
         if (!isOutgoingOnly) const Divider(height: 1),
         if (!isOutgoingOnly) OnlineStatusWidget()
       ],
