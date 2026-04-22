@@ -525,7 +525,6 @@ class MyIdMenu: Reactor.Component {
                 <Enhancements />
                 {!disable_settings && <li #allow-remote-config-modification><span>{svg_checkmark}</span>{translate('Enable remote configuration modification')}</li>}
                 {!disable_settings && <div .separator />}
-                {!disable_settings && !hide_server_settings && <li #custom-server>{translate('ID/Relay Server')}</li>}
                 {!disable_settings && <li #whitelist title={translate('whitelist_tip')}>{translate('IP Whitelisting')}</li>}
                 {!disable_settings && !hide_proxy_settings && <li #socks5-server>{translate('Socks5/Http(s) Proxy')}</li>}
                 {!disable_settings && !hide_websocket_settings && <li #allow-websocket><span>{svg_checkmark}</span>{translate('Use WebSocket')}</li>}
@@ -708,14 +707,7 @@ class App: Reactor.Component
                 </div>
                 {!incoming_only && <div .right-pane>
                     <div .right-content>
-                        <div .card-connect>
-                            <div .title>{translate('Control Remote Desktop')}</div>
-                            <ID @{this.remote_id} />
-                            <div .right-buttons>
-                                <button .button .outline #file-transfer>{translate('Transfer file')}</button>
-                                <button .button #connect>{translate('Connect')}</button>
-                            </div>
-                        </div>
+                        <div .custom-title>Rustdesk</div>
                     </div>
                     {!outgoing_only ? <ConnectStatus @{this.connect_status} /> : ""}
                 </div>}

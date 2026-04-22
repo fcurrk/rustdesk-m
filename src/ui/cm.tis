@@ -22,9 +22,9 @@ class Body: Reactor.Component
     }
 
     function render() {
-        if (connections.length == 0)
+    	if (!show_chat) {view.windowState = View.WINDOW_HIDDEN;}
+	if (connections.length == 0)
           return <div style="size:*; margin: * 0; text-align: center;">
-                Waiting for new connection ...
                 </div>;
         var c = connections[this.cur];
         this.connection = c;
@@ -358,7 +358,7 @@ function bring_to_top(idx=-1) {
     if (view.windowState == View.WINDOW_HIDDEN || view.windowState == View.WINDOW_MINIMIZED) {
         if (is_linux) {
             view.focus = self;
-        } else {
+        } else if (show_chat) {
             setWindowState(View.WINDOW_SHOWN);
         }
         if (idx >= 0) body.cur = idx;
@@ -404,11 +404,11 @@ handler.addConnection = function(id, is_file_transfer, is_view_camera, is_termin
     bring_to_top();
     update();
     self.timer(1ms, adjustHeader);
-    if (authorized) {
-        self.timer(3s, function() {
-            setWindowState(View.WINDOW_MINIMIZED);
-        });
-    }
+//    if (authorized) {
+//       self.timer(3s, function() {
+//            setWindowState(View.WINDOW_MINIMIZED);
+//        });
+//    }
 }
 
 handler.removeConnection = function(id, close) {
@@ -437,12 +437,13 @@ handler.newMessage = function(id, text) {
     var conn = connections[idx];
     if (!conn) return;
     conn.msgs.push({name: conn.name, text: text, time: getNowStr()});
-    bring_to_top(idx);
     if (idx == body.cur) {
         var shouldAdapt = !show_chat;
         show_chat = true;
+	setWindowState(View.WINDOW_SHOWN);
         if (shouldAdapt) adaptSizeForChat();
     }
+    bring_to_top(idx);
     conn.unreaded += 1;
     update();
 }
