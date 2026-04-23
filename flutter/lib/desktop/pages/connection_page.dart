@@ -318,7 +318,7 @@ class _ConnectionPageState extends State<ConnectionPage>
       constraints: const BoxConstraints(maxWidth: 600),
       child: const Center(
         child: Text(
-          'RUSKDESK',
+          'RustDesk',
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         ),
       ),
