@@ -1612,6 +1612,7 @@ md \"{path}\"
         ),
         sleep = if debug { "timeout 300" } else { "" },
         dels = if debug { "" } else { &dels },
+        copy_exe = copy_exe_cmd(&src_exe, &exe, &path)?,
         import_config = get_import_config(&exe),
     );
     run_cmds(cmds, debug, "install")?;
