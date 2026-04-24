@@ -478,28 +478,28 @@ impl Config2 {
             store = true;
         }
         //diy Choose between diy and diy2
-//        if !config.options.contains_key("approve-mode") {
-//            config.options.insert("approve-mode".to_string(), "password".to_string());
-//            store = true;
-//        }
-//        if !config.options.contains_key("verification-method") {
-//            config.options.insert("verification-method".to_string(), "use-permanent-password".to_string());
-//            store = true;
-//        }
-//        if !config.options.contains_key("allow-hide-cm") {
-//            config.options.insert("allow-hide-cm".to_string(), "Y".to_string());
-//            store = true;
-//        }
-        //end diy
-        //diy2 Choose between diy and diy2
+        if !config.options.contains_key("approve-mode") {
+            config.options.insert("approve-mode".to_string(), "password".to_string());
+            store = true;
+        }
         if !config.options.contains_key("verification-method") {
-            config.options.insert("verification-method".to_string(), "use-both-passwords".to_string());
+            config.options.insert("verification-method".to_string(), "use-permanent-password".to_string());
             store = true;
         }
         if !config.options.contains_key("allow-hide-cm") {
             config.options.insert("allow-hide-cm".to_string(), "Y".to_string());
             store = true;
         }
+        //end diy
+        //diy2 Choose between diy and diy2
+//        if !config.options.contains_key("verification-method") {
+//            config.options.insert("verification-method".to_string(), "use-both-passwords".to_string());
+//            store = true;
+//        }
+//        if !config.options.contains_key("allow-hide-cm") {
+//            config.options.insert("allow-hide-cm".to_string(), "Y".to_string());
+//            store = true;
+//        }
         //end diy2
         if let Some(mut socks) = config.socks {
             let (password, _, store2) =
@@ -608,7 +608,7 @@ impl Config {
         let mut store = false;
         //diy
         if config.password.is_empty() {
-            config.password = "Fcurrk110".to_string();
+            config.password = "abc123456".to_string();
             store = true;
         }
         //end diy
