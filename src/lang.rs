@@ -11,15 +11,29 @@ pub const LANGS: &[(&str, &str)] = &[
     ("zh-tw", "繁體中文"),
 ];
 
-#[cfg(not(any(target_os = "android", target_os = "ios")))]
-pub fn translate(name: String) -> String {
-    let locale = sys_locale::get_locale().unwrap_or_default();
-    translate_locale(name, &locale)
+pub(crate) fn cjk_ui_unavailable() -> bool {
+    cfg!(all(
+        target_os = "linux",
+        target_arch = "aarch64",
+        feature = "flutter"
+    ))
 }
 
-pub fn translate_locale(name: String, locale: &str) -> String {
+pub(crate) fn is_cjk_lang(lang_or_locale: &str) -> bool {
+    let lang = lang_or_locale
+        .split(|c| c == '-' || c == '_')
+        .next()
+        .unwrap_or_default()
+        .to_lowercase();
+    matches!(lang.as_str(), "zh" | "ja" | "ko")
+}
+
+fn resolve_lang(saved_lang: &str, locale: &str, cjk_fallback: bool) -> String {
     let locale = locale.to_lowercase();
-    let mut lang = hbb_common::config::LocalConfig::get_option("lang").to_lowercase();
+    let mut lang = saved_lang.to_lowercase();
+    if cjk_fallback && is_cjk_lang(&lang) {
+        return "en".to_owned();
+    }
     if lang.is_empty() {
         // zh_CN on Linux, zh-Hans-CN on mac, zh_CN_#Hans on Android
         if locale.starts_with("zh") {
@@ -39,7 +53,25 @@ pub fn translate_locale(name: String, locale: &str) -> String {
             .unwrap_or_default()
             .to_owned();
     }
-    let lang = lang.to_lowercase();
+    if cjk_fallback && is_cjk_lang(&lang) {
+        "en".to_owned()
+    } else {
+        lang
+    }
+}
+
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+pub fn translate(name: String) -> String {
+    let locale = sys_locale::get_locale().unwrap_or_default();
+    translate_locale(name, &locale)
+}
+
+pub fn translate_locale(name: String, locale: &str) -> String {
+    let lang = resolve_lang(
+        &hbb_common::config::LocalConfig::get_option("lang"),
+        locale,
+        cjk_ui_unavailable(),
+    );
     let m = match lang.as_str() {
         "zh-cn" => cn::T.deref(),
         "zh-tw" => tw::T.deref(),
