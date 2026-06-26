@@ -2,6 +2,7 @@
 
 import os
 import optparse
+import subprocess
 from hashlib import md5
 import brotli
 import datetime
@@ -68,7 +69,7 @@ def build_portable(output_folder: str, target: str):
     current_dir = os.getcwd()
     try:
         os.chdir(output_folder)
-        cmd = ["cargo", "build", "--locked", "--release"]
+        cmd = ["cargo", "build", "--release"]
         if target:
             cmd.extend(["--target", target])
         subprocess.run(cmd, check=True)
