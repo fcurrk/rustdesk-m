@@ -1729,7 +1729,7 @@ md \"{path}\"
 {after_install}
 {sleep}
     ",
-        display_icon = get_custom_icon(&cur_exe).unwrap_or(exe.to_string()),
+        display_icon = get_custom_icon(&path, &cur_exe).unwrap_or(exe.to_string()),
         version = crate::VERSION.replace("-", "."),
         build_date = crate::BUILD_DATE,
         after_install = get_after_install(
