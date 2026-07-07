@@ -184,20 +184,26 @@ impl<T: InvokeUiSession> Remote<T> {
                     .lock()
                     .unwrap()
                     .set_connected();
-                let is_secured = peer.is_secured();
+                // 去端对端安全提示屏蔽下面的内容
+//                let is_secured = peer.is_secured();
+//                self.handler
+//                    .set_connection_type(is_secured, direct, stream_type); // flutter -> connection_ready
+//                if !is_secured
+//                    && !crate::common::is_direct_ip_access(&self.handler.get_id())
+//                    && !client::confirm_insecure_connection(&self.handler, &mut self.receiver).await
+//                {
+//                    self.send_close_reason(&mut peer, "").await;
+//                    if kcp.is_some() {
+//                        tokio::time::sleep(KCP_CLOSE_REASON_FLUSH_DELAY).await;
+//                    }
+//                    self.handle_disconnected(round);
+//                    return;
+//                }
+                // 去端对端安全提示屏蔽以上的内容
+                // 去端对端安全提示启用以下两行,启用提示屏蔽下两行启用上面的内容
                 self.handler
-                    .set_connection_type(is_secured, direct, stream_type); // flutter -> connection_ready
-                if !is_secured
-                    && !crate::common::is_direct_ip_access(&self.handler.get_id())
-                    && !client::confirm_insecure_connection(&self.handler, &mut self.receiver).await
-                {
-                    self.send_close_reason(&mut peer, "").await;
-                    if kcp.is_some() {
-                        tokio::time::sleep(KCP_CLOSE_REASON_FLUSH_DELAY).await;
-                    }
-                    self.handle_disconnected(round);
-                    return;
-                }
+                    .set_connection_type(peer.is_secured(), direct, stream_type); // flutter -> connection_ready
+                // 去端对端安全提示屏蔽以上两行,启用提示屏蔽上两行启用上面的内容
                 self.handler.update_direct(Some(direct));
                 if conn_type == ConnType::DEFAULT_CONN || conn_type == ConnType::VIEW_CAMERA {
                     self.handler
