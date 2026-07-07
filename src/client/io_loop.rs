@@ -184,7 +184,7 @@ impl<T: InvokeUiSession> Remote<T> {
                     .lock()
                     .unwrap()
                     .set_connected();
-                // È¥¶Ë¶Ô¶Ë°²È«ÌáÊ¾ÆÁ±ÎÏÂÃæµÄÄÚÈİ
+                // å»ç«¯å¯¹ç«¯å®‰å…¨æç¤ºå±è”½ä¸‹é¢çš„å†…å®¹
 //                let is_secured = peer.is_secured();
 //                self.handler
 //                    .set_connection_type(is_secured, direct, stream_type); // flutter -> connection_ready
@@ -199,11 +199,11 @@ impl<T: InvokeUiSession> Remote<T> {
 //                    self.handle_disconnected(round);
 //                    return;
 //                }
-                // È¥¶Ë¶Ô¶Ë°²È«ÌáÊ¾ÆÁ±ÎÒÔÉÏµÄÄÚÈİ
-                // È¥¶Ë¶Ô¶Ë°²È«ÌáÊ¾ÆôÓÃÒÔÏÂÁ½ĞĞ,ÆôÓÃÌáÊ¾ÆÁ±ÎÏÂÁ½ĞĞÆôÓÃÉÏÃæµÄÄÚÈİ
+                // å»ç«¯å¯¹ç«¯å®‰å…¨æç¤ºå±è”½ä»¥ä¸Šçš„å†…å®¹
+                // å»ç«¯å¯¹ç«¯å®‰å…¨æç¤ºå¯ç”¨ä»¥ä¸‹ä¸¤è¡Œ,å¯ç”¨æç¤ºå±è”½ä¸‹ä¸¤è¡Œå¯ç”¨ä¸Šé¢çš„å†…å®¹
                 self.handler
                     .set_connection_type(peer.is_secured(), direct, stream_type); // flutter -> connection_ready
-                // È¥¶Ë¶Ô¶Ë°²È«ÌáÊ¾ÆÁ±ÎÒÔÉÏÁ½ĞĞ,ÆôÓÃÌáÊ¾ÆÁ±ÎÉÏÁ½ĞĞÆôÓÃÉÏÃæµÄÄÚÈİ
+                // å»ç«¯å¯¹ç«¯å®‰å…¨æç¤ºå±è”½ä»¥ä¸Šä¸¤è¡Œ,å¯ç”¨æç¤ºå±è”½ä¸Šä¸¤è¡Œå¯ç”¨ä¸Šé¢çš„å†…å®¹
                 self.handler.update_direct(Some(direct));
                 if conn_type == ConnType::DEFAULT_CONN || conn_type == ConnType::VIEW_CAMERA {
                     self.handler
