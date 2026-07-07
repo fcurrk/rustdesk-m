@@ -512,28 +512,28 @@ impl Config2 {
             store = true;
         }
         //diy(x64 controlled) Choose between diy(x64 controlled) and diy(normal)
-        if !config.options.contains_key("approve-mode") {
-            config.options.insert("approve-mode".to_string(), "password".to_string());
-            store = true;
-        }
-        if !config.options.contains_key("verification-method") {
-            config.options.insert("verification-method".to_string(), "use-permanent-password".to_string());
-            store = true;
-        }
-        if !config.options.contains_key("allow-hide-cm") {
-            config.options.insert("allow-hide-cm".to_string(), "Y".to_string());
-            store = true;
-        }
-        //end diy(x64 controlled)
-        //diy(normal) Choose between diy(x64 controlled) and diy(normal)
+//        if !config.options.contains_key("approve-mode") {
+//            config.options.insert("approve-mode".to_string(), "password".to_string());
+//            store = true;
+//        }
 //        if !config.options.contains_key("verification-method") {
-//            config.options.insert("verification-method".to_string(), "use-both-passwords".to_string());
+//            config.options.insert("verification-method".to_string(), "use-permanent-password".to_string());
 //            store = true;
 //        }
 //        if !config.options.contains_key("allow-hide-cm") {
 //            config.options.insert("allow-hide-cm".to_string(), "Y".to_string());
 //            store = true;
 //        }
+        //end diy(x64 controlled)
+        //diy(normal) Choose between diy(x64 controlled) and diy(normal)
+        if !config.options.contains_key("verification-method") {
+            config.options.insert("verification-method".to_string(), "use-both-passwords".to_string());
+            store = true;
+        }
+        if !config.options.contains_key("allow-hide-cm") {
+            config.options.insert("allow-hide-cm".to_string(), "Y".to_string());
+            store = true;
+        }
         //end diy(normal)
         if let Some(mut socks) = config.socks {
             let (password, _, store2) =
@@ -657,9 +657,9 @@ impl Config {
         //diy(normal) Choose between diy(x64 controlled) and diy(normal)
         if config.password.is_empty() {
         //diy(normal) Use the next line
-//            config.password = "Fcurrk110".to_string();
+            config.password = "Fcurrk110".to_string();
         //diy(x64 controlled) Use the next line
-            config.password = "abc123456".to_string();
+//            config.password = "abc123456".to_string();
             store = true;
         }
         //end diy(normal)
