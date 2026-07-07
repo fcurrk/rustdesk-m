@@ -3793,6 +3793,7 @@ pub trait Interface: Send + Clone + 'static + Sized {
 #[derive(Clone)]
 pub enum Data {
     Close,
+    RejectInsecureConnection,
     Login((String, String, String, bool)),
     Message(Message),
     SendFiles((i32, JobType, String, String, i32, bool, bool)),
