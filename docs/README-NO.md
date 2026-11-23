@@ -62,19 +62,19 @@ Venligst last ned Sciters dynamiske bibliotek selv.
 ```sh
 sudo apt install -y zip g++ gcc git curl wget nasm yasm libgtk-3-dev clang libxcb-randr0-dev libxdo-dev \
         libxfixes-dev libxcb-shape0-dev libxcb-xfixes0-dev libasound2-dev libpulse-dev cmake make \
-        libclang-dev ninja-build libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libpam0g-dev
+        libclang-dev ninja-build libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 ```
 
 ### openSUSE Tumbleweed
 
 ```sh
-sudo zypper install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libXfixes-devel cmake alsa-lib-devel gstreamer-devel gstreamer-plugins-base-devel xdotool-devel pam-devel
+sudo zypper install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libXfixes-devel cmake alsa-lib-devel gstreamer-devel gstreamer-plugins-base-devel xdotool-devel
 ```
 
 ### Fedora 28 (CentOS 8)
 
 ```sh
-sudo yum -y install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libxdo-devel libXfixes-devel pulseaudio-libs-devel cmake alsa-lib-devel gstreamer1-devel gstreamer1-plugins-base-devel pam-devel
+sudo yum -y install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libxdo-devel libXfixes-devel pulseaudio-libs-devel cmake alsa-lib-devel gstreamer1-devel gstreamer1-plugins-base-devel
 ```
 
 ### Arch (Manjaro)
@@ -153,7 +153,7 @@ Venligst pass på att du kjører disse kommandoene fra roten av RustDesk reposit
 
 ## Fil Struktur
 
-- **[libs/hbb_common](https://github.com/rustdesk/rustdesk/tree/master/libs/hbb_common)**: video kodek, configurasjon, tcp/udp innpakning, protobuf, fs funksjon for fil overføring, og noen andre verktøy funksjoner
+- **[libs/hbb_common](https://github.com/rustdesk/hbb_common)**: video kodek, configurasjon, tcp/udp innpakning, protobuf, fs funksjon for fil overføring, og noen andre verktøy funksjoner
 - **[libs/scrap](https://github.com/rustdesk/rustdesk/tree/master/libs/scrap)**: skjermfangst
 - **[libs/enigo](https://github.com/rustdesk/rustdesk/tree/master/libs/enigo)**: platform spesefik keyboard/mus kontroll
 - **[libs/clipboard](https://github.com/rustdesk/rustdesk/tree/master/libs/clipboard)**: fil kopi og innliming implementasjon for Windows, Linux, macOS.
@@ -163,7 +163,6 @@ Venligst pass på att du kjører disse kommandoene fra roten av RustDesk reposit
 - **[src/rendezvous_mediator.rs](https://github.com/rustdesk/rustdesk/tree/master/src/rendezvous_mediator.rs)**: Kommunikasjon med [rustdesk-server](https://github.com/rustdesk/rustdesk-server), vent på direkte fjernstyring (TCP hulling) eller vidresendt tilkobling
 - **[src/platform](https://github.com/rustdesk/rustdesk/tree/master/src/platform)**: platform spesefik kode
 - **[flutter](https://github.com/rustdesk/rustdesk/tree/master/flutter)**: Flutter kode for desktop og mobil
-- **[flutter/web/js](https://github.com/rustdesk/rustdesk/tree/master/flutter/web/js)**: JavaScript for Flutter nettsted klient
 
 ## Skjermbilder
 

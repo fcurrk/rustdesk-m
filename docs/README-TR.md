@@ -156,7 +156,7 @@ Lütfen bu komutları RustDesk reposunun root klasöründe çalıştırdığın�
  
 ## Dosya Yapısı
 
-- **[libs/hbb_common](https://github.com/rustdesk/rustdesk/tree/master/libs/hbb_common)**: video codec, config, tcp/udp wrapper, protobuf, dosya transferi için fs fonksiyonları ve diğer bazı yardımcı işlevler
+- **[libs/hbb_common](https://github.com/rustdesk/hbb_common)**: video codec, config, tcp/udp wrapper, protobuf, dosya transferi için fs fonksiyonları ve diğer bazı yardımcı işlevler
 - **[libs/scrap](https://github.com/rustdesk/rustdesk/tree/master/libs/scrap)**: ekran yakalama
 - **[libs/enigo](https://github.com/rustdesk/rustdesk/tree/master/libs/enigo)**: platforma özgü klavye/fare kontrolü
 - **[libs/clipboard](https://github.com/rustdesk/rustdesk/tree/master/libs/clipboard)**: platforma özgü kopyala/yapıştır implementasyonları.
@@ -166,7 +166,6 @@ Lütfen bu komutları RustDesk reposunun root klasöründe çalıştırdığın�
 - **[src/rendezvous_mediator.rs](https://github.com/rustdesk/rustdesk/tree/master/src/rendezvous_mediator.rs)**: [rustdesk-server](https://github.com/rustdesk/rustdesk-server) ile iletişime gir, remote direct(TCP delik açma) yada relay bağlantısı için bekle
 - **[src/platform](https://github.com/rustdesk/rustdesk/tree/master/src/platform)**: platforma özgü kod
 - **[flutter](https://github.com/rustdesk/rustdesk/tree/master/flutter)**: Masaüstü ve mobil için Flutter kodu
-- **[flutter/web/js](https://github.com/rustdesk/rustdesk/tree/master/flutter/web/v1/js)**: Flutter web istemcisi için JavaScript
 
 
 ## Ekran Görüntüleri

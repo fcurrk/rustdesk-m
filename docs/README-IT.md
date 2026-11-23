@@ -152,7 +152,7 @@ Assicurati di eseguire questi comandi dalla radice del repository RustDesk, altr
 
 ## Struttura dei file
 
-- **[libs/hbb_common](https://github.com/rustdesk/rustdesk/tree/master/libs/hbb_common)**: codec video, config, wrapper tcp/udp, protobuf, funzioni per il trasferimento file, e altre funzioni utili.
+- **[libs/hbb_common](https://github.com/rustdesk/hbb_common)**: codec video, config, wrapper tcp/udp, protobuf, funzioni per il trasferimento file, e altre funzioni utili.
 - **[libs/scrap](https://github.com/rustdesk/rustdesk/tree/master/libs/scrap)**: cattura dello schermo
 - **[libs/enigo](https://github.com/rustdesk/rustdesk/tree/master/libs/enigo)**: controllo tastiera/mouse specifico della piattaforma
 - **[libs/clipboard](https://github.com/rustdesk/rustdesk/tree/master/libs/clipboard)**: implementazione del copia e incolla dei file per Windows, Linux, macOS.
@@ -162,7 +162,6 @@ Assicurati di eseguire questi comandi dalla radice del repository RustDesk, altr
 - **[src/rendezvous_mediator.rs](https://github.com/rustdesk/rustdesk/tree/master/src/rendezvous_mediator.rs)**: comunica con [rustdesk-server](https://github.com/rustdesk/rustdesk-server), attende la connessione remota diretta (TCP hole punching) oppure indiretta (relayed)
 - **[src/platform](https://github.com/rustdesk/rustdesk/tree/master/src/platform)**: codice specifico della piattaforma
 - **[flutter](https://github.com/rustdesk/rustdesk/tree/master/flutter)**: codice Flutter per desktop e mobile
-- **[flutter/web/js](https://github.com/rustdesk/rustdesk/tree/master/flutter/web/js)**: JavaScript per client web Flutter
 
 > [!Attenzione]
 > **Dichiarazione di non responsabilità per uso improprio:** <br>

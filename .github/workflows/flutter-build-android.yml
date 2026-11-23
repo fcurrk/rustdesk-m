@@ -31,15 +31,16 @@ env:
   FLUTTER_ELINUX_VERSION: "3.16.9"
   TAG_NAME: "${{ inputs.upload-tag }}"
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
-  # vcpkg version: 2025.08.27
+  # vcpkg version: 2026.07.29
   # If we change the `VCPKG COMMIT_ID`, please remember:
   # 1. Call `$VCPKG_ROOT/vcpkg x-update-baseline` to update the baseline in `vcpkg.json`.
   #  Or we may face build issue like 
   #  https://github.com/rustdesk/rustdesk/actions/runs/14414119794/job/40427970174
   # 2. Update the `VCPKG_COMMIT_ID` in `ci.yml` and `playground.yml`.
-  VCPKG_COMMIT_ID: "120deac3062162151622ca4860575a33844ba10b"
-  ARMV7_VCPKG_COMMIT_ID: "6f29f12e82a8293156836ad81cc9bf5af41fe836" # 2025.01.13, got "/opt/artifacts/vcpkg/vcpkg: No such file or directory" with latest version
-  VERSION: "1.94.9"
+  VCPKG_COMMIT_ID: "9e593bb18ea69cc5095e012465dcd675a822ed0d"
+  VCPKG_CMAKE_VERSION: "4.3.0"
+  ARMV7_VCPKG_COMMIT_ID: "6f29f12e82a8293156836ad81cc9bf5af41fe836"
+  VERSION: "1.95.3"
   NDK_VERSION: "r28c"
     # To make a custom build with your own servers set the below secret values
   RS_PUB_KEY: "${{ secrets.RS_PUB_KEY }}"
@@ -143,6 +144,20 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Check JNI natives are in ffi.FFI
+        # Custom clients rename com.carriez.flutter_hbb; only ffi.FFI keeps its name.
+        shell: bash
+        run: |
+          bad=0
+          grep -rnE --include='*.rs' 'fn Java_' src libs | grep -v 'fn Java_ffi_FFI_' && bad=1
+          grep -rl --include='*.kt' 'external fun' flutter/android \
+            | grep -vx 'flutter/android/app/src/main/kotlin/ffi.kt' && bad=1
+          grep -rn --include='*.rs' 'com/carriez' src libs && bad=1
+          if [ "$bad" = 1 ]; then
+            echo "::error::Declare Android natives in ffi.FFI, export them as Java_ffi_FFI_*, and do not look up app classes by name (see AGENTS.md)"
+            exit 1
+          fi
+
       - name: Install flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
@@ -152,7 +167,9 @@ jobs:
       - name: Patch flutter
         run: |
           cd $(dirname $(dirname $(which flutter)))
-          [[ "3.24.5" == ${{env.ANDROID_FLUTTER_VERSION}} ]] && git apply ${{ github.workspace }}/.github/patches/flutter_3.24.4_dropdown_menu_enableFilter.diff
+          if [[ "3.24.5" == ${{env.ANDROID_FLUTTER_VERSION}} ]]; then
+            git apply ${{ github.workspace }}/.github/patches/flutter_3.24.4_dropdown_menu_enableFilter.diff
+          fi
 
       - uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1
         id: setup-ndk
@@ -431,7 +448,9 @@ jobs:
       - name: Patch flutter
         run: |
           cd $(dirname $(dirname $(which flutter)))
-          [[ "3.24.5" == ${{env.ANDROID_FLUTTER_VERSION}} ]] && git apply ${{ github.workspace }}/.github/patches/flutter_3.24.4_dropdown_menu_enableFilter.diff
+          if [[ "3.24.5" == ${{env.ANDROID_FLUTTER_VERSION}} ]]; then
+            git apply ${{ github.workspace }}/.github/patches/flutter_3.24.4_dropdown_menu_enableFilter.diff
+          fi
 
       - name: Restore bridge files
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1

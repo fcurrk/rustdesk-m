@@ -146,7 +146,7 @@ Upewnij się, że uruchamiasz te polecenia z katalogu głównego repozytorium Ru
 
 ## Struktura plików
 
-- **[libs/hbb_common](https://github.com/rustdesk/rustdesk/tree/master/libs/hbb_common)**: kodek wideo, konfiguracja, obsługa tcp/udp, protobuf, funkcje systemu plików do transferu plików i kilka innych funkcji użytkowych
+- **[libs/hbb_common](https://github.com/rustdesk/hbb_common)**: kodek wideo, konfiguracja, obsługa tcp/udp, protobuf, funkcje systemu plików do transferu plików i kilka innych funkcji użytkowych
 - **[libs/scrap](https://github.com/rustdesk/rustdesk/tree/master/libs/scrap)**: przechwytywanie ekranu
 - **[libs/enigo](https://github.com/rustdesk/rustdesk/tree/master/libs/enigo)**: specyficzne dla danej platformy sterowanie klawiaturą/myszą
 - **[src/ui](https://github.com/rustdesk/rustdesk/tree/master/src/ui)**: GUI
@@ -155,7 +155,6 @@ Upewnij się, że uruchamiasz te polecenia z katalogu głównego repozytorium Ru
 - **[src/rendezvous_mediator.rs](https://github.com/rustdesk/rustdesk/tree/master/src/rendezvous_mediator.rs)**: Komunikacja z [rustdesk-server](https://github.com/rustdesk/rustdesk-server), czekanie na bezpośrednie (odpytywanie TCP) lub przekazywane połączenie
 - **[src/platform](https://github.com/rustdesk/rustdesk/tree/master/src/platform)**: kod specyficzny dla danej platformy
 - **[flutter](https://github.com/rustdesk/rustdesk/tree/master/flutter)**: kod Flutter dla urządzeń mobilnych
-- **[flutter/web/js](https://github.com/rustdesk/rustdesk/tree/master/flutter/web/js)**: JavaScript dla Flutter - klient web
 
 ## Zrzuty ekranu
 

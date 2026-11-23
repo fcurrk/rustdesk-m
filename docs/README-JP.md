@@ -155,7 +155,7 @@ target/release/rustdesk
 
 ## ファイル構造
 
-- **[libs/hbb_common](https://github.com/rustdesk/rustdesk/tree/master/libs/hbb_common)**: ビデオコーデック、設定、tcp/udpラッパー、protobuf、ファイル転送に利用されるfs関数やその他のユーティリティ関数
+- **[libs/hbb_common](https://github.com/rustdesk/hbb_common)**: ビデオコーデック、設定、tcp/udpラッパー、protobuf、ファイル転送に利用されるfs関数やその他のユーティリティ関数
 - **[libs/scrap](https://github.com/rustdesk/rustdesk/tree/master/libs/scrap)**: スクリーンキャプチャ
 - **[libs/enigo](https://github.com/rustdesk/rustdesk/tree/master/libs/enigo)**: プラットフォーム固有のキーボード/マウス操作
 - **[libs/clipboard](https://github.com/rustdesk/rustdesk/tree/master/libs/clipboard)**: Windows、Linux、macOS向けのファイルのコピーと貼り付けの実装
@@ -166,7 +166,6 @@ target/release/rustdesk
 - **[src/rendezvous_mediator.rs](https://github.com/rustdesk/rustdesk/tree/master/src/rendezvous_mediator.rs)**: [rustdesk-server](https://github.com/rustdesk/rustdesk-server)と通信し、リモートの直接接続(TCPホールパンチング)や中継接続を担う。
 - **[src/platform](https://github.com/rustdesk/rustdesk/tree/master/src/platform)**: プラットフォーム固有のコード
 - **[flutter](https://github.com/rustdesk/rustdesk/tree/master/flutter)**: デスクトップとモバイル向けのFlutterコード
-- **[flutter/web/js](https://github.com/rustdesk/rustdesk/tree/master/flutter/web/js)**: Flutterウェブクライアント向けのJavaScript
 
 > [!注意]
 > **:不正使用に関する免責事項** <br>

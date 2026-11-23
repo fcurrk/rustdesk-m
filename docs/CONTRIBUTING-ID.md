@@ -14,7 +14,7 @@ Apabila kamu ingin mengatasi sebuah masalah yang sudah ada di daftar issue, hara
 
 - Sebaiknya buatlah commit seminimal mungkin, sambil memastikan bahwa setiap commit yang dibuat sudah benar (contohnya, setiap commit harus bisa di kompilasi dan berhasil melewati tahap test).
 
-- Setiap commit harus disertai dengan tanda tangan Sertifikat Asal Pengembang (Developer Certificate of Origin) (<http://developercertificate.org>), yang mengindikasikan bahwa kamu (and your employer if applicable) bersedia untuk patuh terhadap persyaratan dari [lisensi projek](../LICENCE). Di git bash, ini adalah opsi parameter `-s` pada `git commit`
+- Setiap commit harus disertai dengan tanda tangan Sertifikat Asal Pengembang (Developer Certificate of Origin) (<https://developercertificate.org>), yang mengindikasikan bahwa kamu (and your employer if applicable) bersedia untuk patuh terhadap persyaratan dari [lisensi projek](../LICENCE). Di git bash, ini adalah opsi parameter `-s` pada `git commit`
 
 - Jika perubahan yang kamu buat tidak mendapat tinjauan atau kamu membutuhkan orang tertentu untuk meninjaunya, kamu bisa @-reply seorang reviewer meminta peninjauan dalam permintaan pull request atau komentar, atau kamu bisa meminta tinjauan melalui [email](mailto:info@rustdesk.com).
 
@@ -24,7 +24,7 @@ Untuk instruksi Git yang lebih lanjut, cek disini [GitHub workflow 101](https://
 
 ## Tindakan
 
-<https://github.com/rustdesk/rustdesk/blob/master/docs/CODE_OF_CONDUCT-ID.md>
+<https://github.com/rustdesk/rustdesk/blob/master/docs/CODE_OF_CONDUCT.md>
 
 ## Komunikasi
 

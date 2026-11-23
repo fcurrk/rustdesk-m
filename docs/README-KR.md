@@ -66,19 +66,19 @@ Sciter 동적 라이브러리를 직접 다운로드하세요.
 ```sh
 sudo apt install -y zip g++ gcc git curl wget nasm yasm libgtk-3-dev clang libxcb-randr0-dev libxdo-dev \
         libxfixes-dev libxcb-shape0-dev libxcb-xfixes0-dev libasound2-dev libpulse-dev cmake make \
-        libclang-dev ninja-build libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libpam0g-dev
+        libclang-dev ninja-build libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 ```
 
 ### openSUSE Tumbleweed
 
 ```sh
-sudo zypper install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libXfixes-devel cmake alsa-lib-devel gstreamer-devel gstreamer-plugins-base-devel xdotool-devel pam-devel
+sudo zypper install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libXfixes-devel cmake alsa-lib-devel gstreamer-devel gstreamer-plugins-base-devel xdotool-devel
 ```
 
 ### Fedora 28 (CentOS 8)
 
 ```sh
-sudo yum -y install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libxdo-devel libXfixes-devel pulseaudio-libs-devel cmake alsa-lib-devel gstreamer1-devel gstreamer1-plugins-base-devel pam-devel
+sudo yum -y install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libxdo-devel libXfixes-devel pulseaudio-libs-devel cmake alsa-lib-devel gstreamer1-devel gstreamer1-plugins-base-devel
 ```
 
 ### Arch (Manjaro)
@@ -158,7 +158,7 @@ RustDesk 리포지토리의 루트에서 이러한 명령을 실행하고 있는
 
 ## 파일_구조
 
-- **[libs/hbb_common](https://github.com/rustdesk/rustdesk/tree/master/libs/hbb_common)**: 비디오 코덱, 구성, tcp/udp wrapper, protobuf, 파일 전송을 위한 fs 함수 및 기타 유틸리티 함수
+- **[libs/hbb_common](https://github.com/rustdesk/hbb_common)**: 비디오 코덱, 구성, tcp/udp wrapper, protobuf, 파일 전송을 위한 fs 함수 및 기타 유틸리티 함수
 - **[libs/scrap](https://github.com/rustdesk/rustdesk/tree/master/libs/scrap)**: 화면 캡쳐
 - **[libs/enigo](https://github.com/rustdesk/rustdesk/tree/master/libs/enigo)**: 플랫폼별 키보드/마우스 제어
 - **[libs/clipboard](https://github.com/rustdesk/rustdesk/tree/master/libs/clipboard)**: Windows, Linux, macOS용 파일 복사 및 붙여넣기 구현
@@ -168,7 +168,6 @@ RustDesk 리포지토리의 루트에서 이러한 명령을 실행하고 있는
 - **[src/rendezvous_mediator.rs](https://github.com/rustdesk/rustdesk/tree/master/src/rendezvous_mediator.rs)**: [rustdesk-server](https://github.com/rustdesk/rustdesk-server)와 통신, 원격 다이렉트 (TCP 홀 펀칭) 또는 릴레이 연결 대기
 - **[src/platform](https://github.com/rustdesk/rustdesk/tree/master/src/platform)**: 플랫폼별 코드
 - **[flutter](https://github.com/rustdesk/rustdesk/tree/master/flutter)**: 데스크톱 및 모바일용 Flutter 코드
-- **[flutter/web/js](https://github.com/rustdesk/rustdesk/tree/master/flutter/web/v1/js)**: Flutter 웹 클라이언트용 JavaScript
 
 ## 스크린샷
 
