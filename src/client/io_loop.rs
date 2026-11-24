@@ -235,7 +235,7 @@ impl<T: InvokeUiSession> Remote<T> {
                 } else {
                     stream_type
                 };
-/                self.handler
+//                self.handler
 //                    .set_connection_type(is_secured, direct, stream_type); // flutter -> connection_ready
 //                if !is_secured
 //                    && !crate::common::is_direct_ip_access(&self.handler.get_id())
