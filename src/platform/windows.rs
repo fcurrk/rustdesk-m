@@ -1776,6 +1776,15 @@ if exist \"{tmp_path}\\{app_name} Tray.lnk\" del /f /q \"{tmp_path}\\{app_name} 
         Config::set_option("key".into(), lic.key);
         Config::set_option("custom-rendezvous-server".into(), lic.host);
         Config::set_option("api-server".into(), lic.api);
+    }
+
+    let tray_shortcuts = if config::is_outgoing_only() {
+        "".to_owned()
+    } else {
+        format!("
+{tray_shortcut_commands}
+copy /Y \"{tmp_path}\\{app_name} Tray.lnk\" \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\"
+")
     };
 
     let install_remote_printer = if install_printer {
@@ -1808,22 +1817,25 @@ if exist \"{tmp_path}\\{app_name} Tray.lnk\" del /f /q \"{tmp_path}\\{app_name} 
 chcp 65001
 md \"{path}\"
 {copy_exe}
-//reg add {subkey} /f
-//reg add {subkey} /f /v DisplayIcon /t REG_SZ /d \"{display_icon}\"
-//reg add {subkey} /f /v DisplayName /t REG_SZ /d \"{app_name}\"
-//reg add {subkey} /f /v DisplayVersion /t REG_SZ /d \"{version}\"
-//reg add {subkey} /f /v Version /t REG_SZ /d \"{version}\"
-//reg add {subkey} /f /v BuildDate /t REG_SZ /d \"{build_date}\"
-//reg add {subkey} /f /v InstallLocation /t REG_SZ /d \"{path}\"
-//reg add {subkey} /f /v Publisher /t REG_SZ /d \"{app_name}\"
-//reg add {subkey} /f /v VersionMajor /t REG_DWORD /d {version_major}
-//reg add {subkey} /f /v VersionMinor /t REG_DWORD /d {version_minor}
-//reg add {subkey} /f /v VersionBuild /t REG_DWORD /d {version_build}
-//reg add {subkey} /f /v UninstallString /t REG_SZ /d \"\\\"{nested_exe}\\\" --uninstall\"
-//reg add {subkey} /f /v EstimatedSize /t REG_DWORD /d {size}
-//reg add {subkey} /f /v WindowsInstaller /t REG_DWORD /d 0
-
-//copy /Y \"{tmp_path}\\Uninstall {app_name}.lnk\" \"{path}\\\"
+reg add {subkey} /f
+reg add {subkey} /f /v DisplayIcon /t REG_SZ /d \"{display_icon}\"
+reg add {subkey} /f /v DisplayName /t REG_SZ /d \"{app_name}\"
+reg add {subkey} /f /v DisplayVersion /t REG_SZ /d \"{version}\"
+reg add {subkey} /f /v Version /t REG_SZ /d \"{version}\"
+reg add {subkey} /f /v BuildDate /t REG_SZ /d \"{build_date}\"
+reg add {subkey} /f /v InstallLocation /t REG_SZ /d \"{path}\"
+reg add {subkey} /f /v Publisher /t REG_SZ /d \"{app_name}\"
+reg add {subkey} /f /v VersionMajor /t REG_DWORD /d {version_major}
+reg add {subkey} /f /v VersionMinor /t REG_DWORD /d {version_minor}
+reg add {subkey} /f /v VersionBuild /t REG_DWORD /d {version_build}
+reg add {subkey} /f /v UninstallString /t REG_SZ /d \"\\\"{nested_exe}\\\" --uninstall\"
+reg add {subkey} /f /v EstimatedSize /t REG_DWORD /d {size}
+reg add {subkey} /f /v WindowsInstaller /t REG_DWORD /d 0
+{mk_shortcut_commands}
+{uninstall_shortcut_commands}
+{tray_shortcuts}
+{shortcuts}
+copy /Y \"{tmp_path}\\Uninstall {app_name}.lnk\" \"{path}\\\"
 {dels}
 {import_config}
 {after_install}
@@ -3452,8 +3464,8 @@ fn get_install_service_commands(path: &str, exe: &str) -> ResultType<InstallComm
         "
 chcp 65001
 taskkill /F /IM {app_name}.exe{filter}
-
-//copy /Y \"%RUSTDESK_OUTPUT_DIR%\\{app_name} Tray.lnk\" \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\"
+{tray_shortcut_commands}
+copy /Y \"%RUSTDESK_OUTPUT_DIR%\\{app_name} Tray.lnk\" \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\"
 {import_config}
 {create_service}
     ",
